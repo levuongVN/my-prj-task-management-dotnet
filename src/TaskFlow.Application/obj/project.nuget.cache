@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "HtqkAym0yuE=",
+  "success": true,
+  "projectFilePath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/TaskFlow.Application.csproj",
+  "expectedPackageFiles": [
+    "/Users/vuongle/.nuget/packages/bcrypt.net-next/4.2.0/bcrypt.net-next.4.2.0.nupkg.sha512",
+    "/Users/vuongle/.nuget/packages/microsoft.extensions.dependencyinjection.abstractions/9.0.0/microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg.sha512",
+    "/Users/vuongle/.nuget/packages/microsoft.extensions.options/9.0.0/microsoft.extensions.options.9.0.0.nupkg.sha512",
+    "/Users/vuongle/.nuget/packages/microsoft.extensions.primitives/9.0.0/microsoft.extensions.primitives.9.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
