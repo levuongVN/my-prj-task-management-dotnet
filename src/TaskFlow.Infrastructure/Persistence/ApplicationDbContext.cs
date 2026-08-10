@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TaskFlow.Domain.Common;
 using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Infrastructure.Persistence;
@@ -18,6 +19,38 @@ public class ApplicationDbContext : DbContext
     public DbSet<Meeting> Meetings { get; set; }
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+    public DbSet<Notification> Notifications => Set<Notification>();
+
+    public override int SaveChanges()
+    {
+        UpdateAuditTimestamps();
+        return base.SaveChanges();
+    }
+
+    public override Task<int> SaveChangesAsync(
+        CancellationToken cancellationToken = default)
+    {
+        UpdateAuditTimestamps();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateAuditTimestamps()
+    {
+        var now = DateTime.UtcNow;
+
+        foreach (var entry in ChangeTracker.Entries<AuditableEntity>())
+        {
+            if (entry.State == EntityState.Added)
+            {
+                entry.Entity.CreatedAt = now;
+                entry.Entity.UpdatedAt = now;
+            }
+            else if (entry.State == EntityState.Modified)
+            {
+                entry.Entity.UpdatedAt = now;
+            }
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

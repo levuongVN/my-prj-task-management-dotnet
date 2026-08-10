@@ -1,11 +1,10 @@
+using TaskFlow.Domain.Common;
 using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Domain.Entities;
 
-public class TaskItem
+public class TaskItem : AuditableEntity
 {
-    public Guid Id { get; set; }
-
     public string Title { get; set; } = string.Empty;
 
     public string? Description { get; set; }
@@ -29,7 +28,4 @@ public class TaskItem
     // Navigation Property
     public User User { get; set; } = null!;
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 }

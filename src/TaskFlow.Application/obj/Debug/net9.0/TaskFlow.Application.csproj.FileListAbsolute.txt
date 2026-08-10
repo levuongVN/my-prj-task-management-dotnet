@@ -13,3 +13,4 @@
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/obj/Debug/net9.0/refint/TaskFlow.Application.dll
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/obj/Debug/net9.0/TaskFlow.Application.pdb
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/obj/Debug/net9.0/ref/TaskFlow.Application.dll
+/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/obj/Debug/net9.0/TaskFlow.Application.sourcelink.json

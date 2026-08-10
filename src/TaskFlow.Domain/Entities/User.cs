@@ -1,9 +1,9 @@
+using TaskFlow.Domain.Common;
+
 namespace TaskFlow.Domain.Entities;
 
-public class User
+public class User : AuditableEntity
 {
-    public Guid Id { get; set; }
-
     public string Email { get; set; } = string.Empty;
 
     public string PasswordHash { get; set; } = string.Empty;
@@ -12,12 +12,9 @@ public class User
 
     public string? AvatarUrl { get; set; }
 
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
     // Navigation Properties
     public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
 
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

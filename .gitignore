@@ -1,0 +1,31 @@
+# .NET build output
+**/bin/
+**/obj/
+
+# Local IDE and user settings
+.vs/
+.vscode/
+*.user
+*.suo
+
+# Secrets and machine-specific configuration
+**/appsettings.json
+**/appsettings.*.json
+!**/appsettings.example.json
+.env
+.env.*
+!.env.example
+**/secrets.json
+**/*.pfx
+**/*.p12
+**/*.pem
+**/*.key
+
+# Local databases and logs
+*.db
+*.db-shm
+*.db-wal
+*.log
+
+# OS files
+.DS_Store

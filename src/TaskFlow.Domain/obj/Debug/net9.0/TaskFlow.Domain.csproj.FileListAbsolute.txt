@@ -9,3 +9,4 @@
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/obj/Debug/net9.0/refint/TaskFlow.Domain.dll
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/obj/Debug/net9.0/TaskFlow.Domain.pdb
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/obj/Debug/net9.0/ref/TaskFlow.Domain.dll
+/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/obj/Debug/net9.0/TaskFlow.Domain.sourcelink.json
