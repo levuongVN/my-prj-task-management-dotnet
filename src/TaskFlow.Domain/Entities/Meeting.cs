@@ -1,9 +1,9 @@
+using TaskFlow.Domain.Common;
+
 namespace TaskFlow.Domain.Entities;
 
-public class Meeting
+public class Meeting : BaseEntity
 {
-    public Guid Id { get; set; }
-
     public string Title { get; set; } = string.Empty;
 
     public DateTime StartAt { get; set; }

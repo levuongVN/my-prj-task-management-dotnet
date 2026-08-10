@@ -1,11 +1,10 @@
+using TaskFlow.Domain.Common;
 using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Domain.Entities;
 
-public class Project
+public class Project : AuditableEntity
 {
-    public Guid Id { get; set; }
-
     public string Name { get; set; } = string.Empty;
 
     public string? Description { get; set; }
@@ -16,10 +15,6 @@ public class Project
     public Guid UserId { get; set; }
 
     public User User { get; set; } = null!;
-
-    public DateTime CreatedAt { get; set; }
-
-    public DateTime UpdatedAt { get; set; }
 
     public bool IsDeleted { get; set; } = false;
 

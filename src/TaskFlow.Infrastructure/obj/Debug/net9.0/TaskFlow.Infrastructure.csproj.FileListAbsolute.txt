@@ -17,3 +17,4 @@
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Infrastructure/obj/Debug/net9.0/TaskFlow.Infrastructure.pdb
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Infrastructure/obj/Debug/net9.0/TaskFlow.Infrastructure.genruntimeconfig.cache
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Infrastructure/obj/Debug/net9.0/ref/TaskFlow.Infrastructure.dll
+/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Infrastructure/obj/Debug/net9.0/TaskFlow.Infrastructure.sourcelink.json
