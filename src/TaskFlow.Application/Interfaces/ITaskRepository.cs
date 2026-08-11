@@ -19,9 +19,9 @@ public interface ITaskRepository
 
     Task AddAsync(TaskItem task);
 
-    Task UpdateAsync(TaskItem task);
+    void Update(TaskItem task);
 
-    Task DeleteAsync(TaskItem task);
+    void Delete(TaskItem task);
 
     Task SaveChangesAsync();
 }

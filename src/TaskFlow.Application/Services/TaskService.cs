@@ -116,7 +116,7 @@ public class TaskService(
         task.ProjectId = request.ProjectId;
         task.UpdatedAt = DateTime.UtcNow;
 
-        await _taskRepository.UpdateAsync(task);
+        _taskRepository.Update(task);
 
         await _taskRepository.SaveChangesAsync();
 
@@ -142,8 +142,7 @@ public class TaskService(
             );
         }
 
-        await _taskRepository
-            .DeleteAsync(task);
+        _taskRepository.Delete(task);
 
         await _taskRepository
             .SaveChangesAsync();

@@ -46,16 +46,14 @@ public class TaskRepository(
         await _context.Tasks.AddAsync(task);
     }
 
-    public Task UpdateAsync(
+    public void Update(
         TaskItem task
     )
     {
         _context.Tasks.Update(task);
-
-        return Task.CompletedTask;
     }
 
-    public Task DeleteAsync(
+    public void Delete(
         TaskItem task
     )
     {
@@ -63,8 +61,6 @@ public class TaskRepository(
         task.UpdatedAt = DateTime.UtcNow;
 
         _context.Tasks.Update(task);
-
-        return Task.CompletedTask;
     }
 
     public async Task SaveChangesAsync()
