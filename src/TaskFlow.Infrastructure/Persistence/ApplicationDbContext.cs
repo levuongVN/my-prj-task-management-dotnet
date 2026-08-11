@@ -20,6 +20,7 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Notification> Notifications => Set<Notification>();
+    public DbSet<UserDevice> UserDevices => Set<UserDevice>();
 
     public override int SaveChanges()
     {
@@ -93,6 +94,31 @@ public class ApplicationDbContext : DbContext
                 .WithMany(x => x.RefreshTokens)
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+        modelBuilder.Entity<UserDevice>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.DeviceType)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(x => x.DeviceName)
+                .HasMaxLength(100);
+
+            entity.Property(x => x.DeviceToken)
+                .HasMaxLength(500);
+
+            entity.HasIndex(x => x.DeviceToken)
+                .HasFilter("\"DeviceToken\" IS NOT NULL"); // Chỉ tạo index cho các bản ghi có token
+
+            entity.Property(x => x.IpAddress)
+                .HasMaxLength(45); // Hỗ trợ cả IPv4 và IPv6
+
+            entity.HasOne(x => x.User)
+                .WithMany(x => x.Devices)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade); // Xóa User thì tự động xóa các thiết bị liên kết
         });
     }
 }

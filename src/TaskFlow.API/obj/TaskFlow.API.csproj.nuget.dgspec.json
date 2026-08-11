@@ -1,36 +1,43 @@
 {
   "format": 1,
   "restore": {
-    "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/TaskFlow.API.csproj": {}
+    "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.API\\TaskFlow.API.csproj": {}
   },
   "projects": {
-    "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/TaskFlow.API.csproj": {
+    "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.API\\TaskFlow.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/TaskFlow.API.csproj",
+        "projectUniqueName": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.API\\TaskFlow.API.csproj",
         "projectName": "TaskFlow.API",
-        "projectPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/TaskFlow.API.csproj",
-        "packagesPath": "/Users/vuongle/.nuget/packages/",
-        "outputPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/obj/",
+        "projectPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.API\\TaskFlow.API.csproj",
+        "packagesPath": "C:\\Users\\Tho\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.API\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/vuongle/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Tho\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/TaskFlow.Application.csproj": {
-                "projectPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/TaskFlow.Application.csproj"
+              "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Application\\TaskFlow.Application.csproj": {
+                "projectPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Application\\TaskFlow.Application.csproj"
               },
-              "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Infrastructure/TaskFlow.Infrastructure.csproj": {
-                "projectPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Infrastructure/TaskFlow.Infrastructure.csproj"
+              "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Infrastructure\\TaskFlow.Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Infrastructure\\TaskFlow.Infrastructure.csproj"
               }
             }
           }
@@ -45,10 +52,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
@@ -89,34 +97,41 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/TaskFlow.Application.csproj": {
+    "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Application\\TaskFlow.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/TaskFlow.Application.csproj",
+        "projectUniqueName": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Application\\TaskFlow.Application.csproj",
         "projectName": "TaskFlow.Application",
-        "projectPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/TaskFlow.Application.csproj",
-        "packagesPath": "/Users/vuongle/.nuget/packages/",
-        "outputPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/obj/",
+        "projectPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Application\\TaskFlow.Application.csproj",
+        "packagesPath": "C:\\Users\\Tho\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Application\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/vuongle/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Tho\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/TaskFlow.Domain.csproj": {
-                "projectPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/TaskFlow.Domain.csproj"
+              "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Domain\\TaskFlow.Domain.csproj": {
+                "projectPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Domain\\TaskFlow.Domain.csproj"
               }
             }
           }
@@ -131,10 +146,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "BCrypt.Net-Next": {
@@ -162,30 +178,37 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/TaskFlow.Domain.csproj": {
+    "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Domain\\TaskFlow.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/TaskFlow.Domain.csproj",
+        "projectUniqueName": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Domain\\TaskFlow.Domain.csproj",
         "projectName": "TaskFlow.Domain",
-        "projectPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/TaskFlow.Domain.csproj",
-        "packagesPath": "/Users/vuongle/.nuget/packages/",
-        "outputPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/obj/",
+        "projectPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Domain\\TaskFlow.Domain.csproj",
+        "packagesPath": "C:\\Users\\Tho\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Domain\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/vuongle/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Tho\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {}
           }
@@ -200,10 +223,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "imports": [
             "net461",
@@ -221,37 +245,44 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     },
-    "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Infrastructure/TaskFlow.Infrastructure.csproj": {
+    "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Infrastructure\\TaskFlow.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Infrastructure/TaskFlow.Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Infrastructure\\TaskFlow.Infrastructure.csproj",
         "projectName": "TaskFlow.Infrastructure",
-        "projectPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Infrastructure/TaskFlow.Infrastructure.csproj",
-        "packagesPath": "/Users/vuongle/.nuget/packages/",
-        "outputPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Infrastructure/obj/",
+        "projectPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Infrastructure\\TaskFlow.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\Tho\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
         "configFilePaths": [
-          "/Users/vuongle/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\Tho\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net9.0": {
+            "framework": "net9.0",
             "targetAlias": "net9.0",
             "projectReferences": {
-              "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/TaskFlow.Application.csproj": {
-                "projectPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Application/TaskFlow.Application.csproj"
+              "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Application\\TaskFlow.Application.csproj": {
+                "projectPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Application\\TaskFlow.Application.csproj"
               },
-              "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/TaskFlow.Domain.csproj": {
-                "projectPath": "/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.Domain/TaskFlow.Domain.csproj"
+              "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Domain\\TaskFlow.Domain.csproj": {
+                "projectPath": "C:\\Users\\Tho\\OneDrive\\Tài liệu\\Tài liệu\\GitHub\\my-prj-task-management-dotnet\\src\\TaskFlow.Domain\\TaskFlow.Domain.csproj"
               }
             }
           }
@@ -266,10 +297,11 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.300"
       },
       "frameworks": {
         "net9.0": {
+          "framework": "net9.0",
           "targetAlias": "net9.0",
           "dependencies": {
             "BCrypt.Net-Next": {
@@ -331,7 +363,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.305/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
