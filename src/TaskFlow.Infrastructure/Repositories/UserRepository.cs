@@ -21,10 +21,11 @@ public class UserRepository : IUserRepository
             x => x.Email == email
         );
     }
-    public User? GetById(Guid id)
+    public async Task<User?> GetById(Guid id)
     {
         return _context.Users.FirstOrDefault(
             x => x.Id == id
         );
     }
+    
 }
