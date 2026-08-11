@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Domain.Entities;
 using TaskFlow.Infrastructure.Persistence;
@@ -15,15 +16,16 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public User? GetByEmail(string email)
+    public async Task<User?> GetByEmailAsync(string email)
     {
-        return _context.Users.FirstOrDefault(
+        return await _context.Users.FirstOrDefaultAsync(
             x => x.Email == email
         );
     }
-    public async Task<User?> GetById(Guid id)
+
+    public async Task<User?> GetByIdAsync(Guid id)
     {
-        return _context.Users.FirstOrDefault(
+        return await _context.Users.FirstOrDefaultAsync(
             x => x.Id == id
         );
     }

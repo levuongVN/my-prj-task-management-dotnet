@@ -1,12 +1,33 @@
 # .NET build output
 **/bin/
 **/obj/
+**/artifacts/
+**/publish/
+
+# .NET CLI and NuGet caches stored inside the repository
+.dotnet/
+.nuget/
+**/packages/
+
+# Test and code coverage output
+**/TestResults/
+**/coverage/
+coverage.*
+*.trx
+*.coverage
+*.coveragexml
+
+# MSBuild logs and temporary files
+*.binlog
+*.tmp
 
 # Local IDE and user settings
 .vs/
 .vscode/
+.idea/
 *.user
 *.suo
+*.userprefs
 
 # Secrets and machine-specific configuration
 **/appsettings.json

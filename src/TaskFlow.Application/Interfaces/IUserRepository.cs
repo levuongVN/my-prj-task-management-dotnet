@@ -4,6 +4,6 @@ namespace TaskFlow.Application.Common.Interfaces;
 
 public interface IUserRepository
 {
-    User? GetByEmail(string email);
-    Task<User?> GetById(Guid userId);
+    Task<User?> GetByEmailAsync(string email);
+    Task<User?> GetByIdAsync(Guid userId);
 }

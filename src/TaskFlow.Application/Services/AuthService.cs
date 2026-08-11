@@ -21,7 +21,7 @@ public class AuthService(
     LoginRequest request
 )
 {
-    var user = _userRepository.GetByEmail(
+    var user = await _userRepository.GetByEmailAsync(
         request.Email
     );
 

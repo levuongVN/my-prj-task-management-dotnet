@@ -9,12 +9,9 @@ namespace TaskFlow.Api.Controllers;
 [ApiController]
 [Route("api/tasks")]
 [Authorize]
-public class TasksController(ITaskService taskService) : ControllerBase
-{
-    private readonly ITaskService _taskService =
-        taskService;
+public class TasksController(ITaskService taskService) : ControllerBase{
+    private readonly ITaskService _taskService = taskService;
 
-    
     private Guid CurrentUserId =>
         Guid.Parse(
             User.FindFirstValue(
