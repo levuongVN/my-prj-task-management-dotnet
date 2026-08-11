@@ -1,5 +1,4 @@
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/bin/Debug/net9.0/appsettings.Development.json
-/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/bin/Debug/net9.0/appsettings.json
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/bin/Debug/net9.0/TaskFlow.API.staticwebassets.endpoints.json
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/bin/Debug/net9.0/TaskFlow.API
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/bin/Debug/net9.0/TaskFlow.API.deps.json
@@ -154,3 +153,4 @@
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/obj/Debug/net9.0/TaskFlow.API.genruntimeconfig.cache
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/obj/Debug/net9.0/ref/TaskFlow.API.dll
 /Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/obj/Debug/net9.0/TaskFlow.API.sourcelink.json
+/Users/vuongle/ImportanDocuments/my-prj-task-management-dotnet/src/TaskFlow.API/bin/Debug/net9.0/appsettings.json

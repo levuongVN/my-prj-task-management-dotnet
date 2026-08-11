@@ -34,7 +34,7 @@ public class TaskService(
             .ToList();
     }
 
-    public async Task<TaskResponse>GetByIdAsync(Guid taskId,Guid userId)
+    public async Task<TaskResponse> GetByIdAsync(Guid taskId, Guid userId)
     {
         var task =
             await _taskRepository
@@ -53,12 +53,11 @@ public class TaskService(
         return Map(task);
     }
 
-    public async Task<TaskResponse> CreateAsync(CreateOrUpdateTaskRequest request,Guid userId)
+    public async Task<TaskResponse> CreateAsync(CreateOrUpdateTaskRequest request, Guid userId)
     {
         if (request.ProjectId.HasValue)
         {
-            var project =
-                await _projectRepository.GetByIdAsync(
+            var project = await _projectRepository.GetByIdAsync(
                     request.ProjectId.Value,
                     userId
                 );
@@ -96,8 +95,7 @@ public class TaskService(
             CreateOrUpdateTaskRequest request
         )
     {
-        var task =
-            await _taskRepository
+        var task = await _taskRepository
                 .GetByIdAsync(
                     taskId,
                     userId
@@ -118,11 +116,9 @@ public class TaskService(
         task.ProjectId = request.ProjectId;
         task.UpdatedAt = DateTime.UtcNow;
 
-        await _taskRepository
-            .UpdateAsync(task);
+        await _taskRepository.UpdateAsync(task);
 
-        await _taskRepository
-            .SaveChangesAsync();
+        await _taskRepository.SaveChangesAsync();
 
         return Map(task);
     }
