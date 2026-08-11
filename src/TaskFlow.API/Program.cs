@@ -21,7 +21,9 @@ builder.Services.AddCors(options =>
                 .AllowAnyMethod();
         });
 });
+
 // gọi các builder của các layer ở đây sau đó mới build app ở dưới, nếu không sẽ bị lỗi khi chạy app do chưa đăng ký các service của layer đó
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -31,6 +33,9 @@ if (app.Environment.IsDevelopment())
 
 // MIDDLEWARE
 app.UseCors("AllowFrontend");
+app.UseMiddleware<ExceptionHandingMiddleware>();
+//auth
+//logg
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

@@ -14,7 +14,7 @@ public class User : AuditableEntity
 
     // Navigation Properties
     public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
-
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
+    public ICollection<UserDevice> Devices { get; set; } = new List<UserDevice>();
 }

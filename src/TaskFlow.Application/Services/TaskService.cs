@@ -34,7 +34,7 @@ public class TaskService(
             .ToList();
     }
 
-    public async Task<TaskResponse>GetByIdAsync(Guid taskId,Guid userId)
+    public async Task<TaskResponse> GetByIdAsync(Guid taskId, Guid userId)
     {
         var task =
             await _taskRepository
@@ -45,7 +45,7 @@ public class TaskService(
 
         if (task == null)
         {
-            throw new Exception(
+            throw new KeyNotFoundException(
                 "Task not found"
             );
         }
@@ -53,7 +53,7 @@ public class TaskService(
         return Map(task);
     }
 
-    public async Task<TaskResponse> CreateAsync(CreateOrUpdateTaskRequest request,Guid userId)
+    public async Task<TaskResponse> CreateAsync(CreateOrUpdateTaskRequest request, Guid userId)
     {
         if (request.ProjectId.HasValue)
         {
