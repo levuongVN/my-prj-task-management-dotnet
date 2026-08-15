@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Features.Auth.DTOs;
 using TaskFlow.Domain.Entities;
 using TaskFlow.Infrastructure.Persistence;
 
@@ -28,33 +29,19 @@ public class UserRepository : IUserRepository
             x => x.Id == id
         );
     }
-    public async Task<User> AddAsync(User user)
+        public async Task<User> UpdateAsync(User user)
     {
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
-        return user;    
-    }
-    public async Task<User> UpdateAsync(User user)
-    {
-        var existingUser = await GetByIdAsync(user.Id);
-        if (existingUser == null)
+        try
         {
-            throw new KeyNotFoundException("User not found");
-        }
-
-        _context.Entry(existingUser).CurrentValues.SetValues(user);
-        await _context.SaveChangesAsync();
-        return existingUser;
-    }
-    public async Task DeleteAsync(Guid id)
-    {
-        var user = await GetByIdAsync(id);
-        if(user != null)
-        {
-            _context.Users.Remove(user);
+            _context.Update(user);
             await _context.SaveChangesAsync();
+            return user;    
         }
+        catch(Exception ex)
+        {
+            throw new Exception("Can not update data",ex);
+        }
+        
     }
-
     
 }

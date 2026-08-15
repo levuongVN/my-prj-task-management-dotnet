@@ -1,5 +1,6 @@
 using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Application.Features.Auth.DTOs;
+using TaskFlow.Domain.Entities;
 
 public class UserService : IUserService
 {
@@ -9,20 +10,6 @@ public class UserService : IUserService
         _userRepository = userRepository;
     }
 
-    public Task<UserDto> AddAsync(UserDto user)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task DeleteAsync(Guid id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<UserDto> GetByIdAsync(Guid id)
-    {
-        throw new NotImplementedException();
-    }
 
     public async Task<UserDto> GetProfileAsync(Guid id)
     {
@@ -43,8 +30,31 @@ public class UserService : IUserService
         };
     }
 
-    public Task<UserDto> UpdateAsync(UserDto user)
+    public async Task<UserDto> UpdateAsync(UserDto user)
     {
-        throw new NotImplementedException();
+        if (user.Id == Guid.Empty)
+        {
+            throw new ArgumentException("User ID is required.");
+        }
+
+        User? existingUser = await _userRepository.GetByIdAsync(user.Id);
+        if (existingUser == null)
+        {
+            throw new KeyNotFoundException("User not found");
+        }
+
+        existingUser.AvatarUrl = user.AvatarUrl;
+        existingUser.FullName = user.FullName;
+
+        var updatedUser = await _userRepository.UpdateAsync(existingUser);
+
+        return new UserDto
+        {
+            Id = updatedUser.Id,
+            Email = updatedUser.Email,
+            FullName = updatedUser.FullName,
+            AvatarUrl = updatedUser.AvatarUrl,
+            CreatedAt = updatedUser.CreatedAt
+        };
     }
 }
