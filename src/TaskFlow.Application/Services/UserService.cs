@@ -8,9 +8,25 @@ public class UserService : IUserService
     {
         _userRepository = userRepository;
     }
+
+    public Task<UserDto> AddAsync(UserDto user)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task DeleteAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<UserDto> GetByIdAsync(Guid id)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<UserDto> GetProfileAsync(Guid id)
     {
-        var user = await _userRepository.GetById(id);
+        var user = await _userRepository.GetByIdAsync(id);
 
         if (user == null)
         {
@@ -25,5 +41,10 @@ public class UserService : IUserService
             CreatedAt = user.CreatedAt,
             Email = user.Email
         };
+    }
+
+    public Task<UserDto> UpdateAsync(UserDto user)
+    {
+        throw new NotImplementedException();
     }
 }
