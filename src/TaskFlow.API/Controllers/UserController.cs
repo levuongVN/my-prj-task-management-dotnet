@@ -53,4 +53,25 @@ public class UserController : ControllerBase
             );
         }
     }
+    [HttpPut("update/password")]
+    public async Task<IActionResult> UpdatePassword(
+        [FromBody] UpdatePasswordRequest request
+    )
+    {
+        try
+        {
+            var user = new UserDto { Id = CurrentUserId };
+            var result = await _service.UpdatePasswordAsync(user, request.NewPassword);
+            return Ok(result);
+        }
+        catch (Exception exception)
+        {
+            return BadRequest(
+                new
+                {
+                    message = exception.Message
+                }
+            );
+        }
+    }
 }

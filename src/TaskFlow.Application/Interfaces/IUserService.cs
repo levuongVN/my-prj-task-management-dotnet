@@ -6,5 +6,7 @@ public interface IUserService
     
     
     Task<UserDto> UpdateAsync(UserDto user);
+
+    Task<bool> UpdatePasswordAsync(UserDto user, String newPassword);
     
 }
