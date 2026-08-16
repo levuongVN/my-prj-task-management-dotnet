@@ -10,5 +10,5 @@ public class UserDto
 
     public string? AvatarUrl { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateTime? CreatedAt { get; set; }
 }

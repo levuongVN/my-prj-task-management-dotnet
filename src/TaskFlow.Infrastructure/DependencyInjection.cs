@@ -62,6 +62,7 @@ public static class DependencyInjection
         services.AddScoped<IMeetingRepository, MeetingRepository>();
         services.AddScoped<IMeetingService, MeetingService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
+        services.AddScoped<IUserService, UserService>();
         return services;
     }
 }

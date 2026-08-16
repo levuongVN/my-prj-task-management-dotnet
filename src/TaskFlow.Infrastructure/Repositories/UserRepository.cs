@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Features.Auth.DTOs;
 using TaskFlow.Domain.Entities;
 using TaskFlow.Infrastructure.Persistence;
 
@@ -22,11 +23,25 @@ public class UserRepository : IUserRepository
             x => x.Email == email
         );
     }
-
     public async Task<User?> GetByIdAsync(Guid id)
     {
         return await _context.Users.FirstOrDefaultAsync(
             x => x.Id == id
         );
     }
+        public async Task<User> UpdateAsync(User user)
+    {
+        try
+        {
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+            return user;    
+        }
+        catch(Exception ex)
+        {
+            throw new Exception("Can not update data",ex);
+        }
+        
+    }
+    
 }
