@@ -25,7 +25,7 @@ public class ExceptionHandingMiddleware
                 _ => StatusCodes.Status500InternalServerError
             };
 
-            var message = statusCodes == StatusCodes.Status500InternalServerError ? "Some thing was wrong" : exception.Message;
+            var message = statusCodes == StatusCodes.Status500InternalServerError ? "Some thing was wrong" + exception : exception.Message;
 
             context.Response.StatusCode = statusCodes;
             await context.Response.WriteAsJsonAsync(

@@ -8,5 +8,5 @@ public class SupabaseStorageOptions
 
     public string SecretAccessKey { get; set; } = string.Empty;
 
-    public string Bucket { get; set; } = "avatars";
+    public string Bucket { get; set; } = "Avatar Users Project Task Manage App";
 }
