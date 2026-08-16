@@ -77,7 +77,7 @@ public class AuthService(
             Id = user.Id,
             Email = user.Email,
             FullName = user.FullName,
-            AvatarUrl = user.AvatarUrl,
+            AvatarUrl = user.AvatarPath,
             CreatedAt = user.CreatedAt
         }
     };
@@ -114,7 +114,7 @@ public class AuthService(
                 Id = storedToken.User.Id,
                 Email = storedToken.User.Email,
                 FullName = storedToken.User.FullName,
-                AvatarUrl = storedToken.User.AvatarUrl,
+                AvatarUrl = storedToken.User.AvatarPath,
                 CreatedAt = storedToken.User.CreatedAt
             }
         };

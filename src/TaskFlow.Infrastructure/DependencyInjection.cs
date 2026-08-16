@@ -14,6 +14,9 @@ using TaskFlow.Application.Features.Meetings.Interfaces;
 using TaskFlow.Application.Features.Meetings.Services;
 using TaskFlow.Application.Features.Analytics.Interfaces;
 using TaskFlow.Application.Features.Analytics.Services;
+using Amazon.S3;
+using Amazon.Runtime;
+using Microsoft.Extensions.Options;
 
 namespace TaskFlow.Infrastructure;
 
@@ -54,6 +57,35 @@ public static class DependencyInjection
                 };
         });
 
+        services.Configure<SupabaseStorageOptions>(
+            configuration.GetSection("SupabaseStorage")
+        );
+        
+        services.AddSingleton<IAmazonS3>(serviceProvider =>
+                {
+                    var options = serviceProvider.GetRequiredService<IOptions<SupabaseStorageOptions>>().Value;
+
+                    var credentials = new BasicAWSCredentials(
+                        options.AccessKeyId,
+                        options.SecretAccessKey
+                    );
+
+                    var s3Config = new AmazonS3Config
+                    {
+                        ServiceURL = options.Endpoint,
+
+                        ForcePathStyle = true,
+
+                        AuthenticationRegion = options.Region
+                    };
+
+                    return new AmazonS3Client(
+                        credentials,
+                        s3Config
+                    );
+                });
+
+
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
@@ -63,6 +95,7 @@ public static class DependencyInjection
         services.AddScoped<IMeetingService, MeetingService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IFileStorageService, SupabaseStorageService>();
         return services;
     }
 }

@@ -10,7 +10,7 @@ public class User : AuditableEntity
 
     public string FullName { get; set; } = string.Empty;
 
-    public string? AvatarUrl { get; set; }
+    public string? AvatarPath { get; set; }
 
     // Navigation Properties
     public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();

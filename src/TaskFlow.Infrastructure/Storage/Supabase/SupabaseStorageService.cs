@@ -58,10 +58,7 @@ public class SupabaseStorageService
         return await _s3.GetPreSignedURLAsync(request);
     }
 
-    public async Task DeleteAsync(
-        string path,
-        CancellationToken cancellationToken = default
-    )
+    public async Task DeleteAsync(string path,CancellationToken cancellationToken = default)
     {
         await _s3.DeleteObjectAsync(
             _options.Bucket,
