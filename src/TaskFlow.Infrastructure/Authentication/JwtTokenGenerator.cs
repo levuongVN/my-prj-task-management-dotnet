@@ -20,7 +20,8 @@ public class JwtTokenGenerator : IJwtTokenGenerator
 
     public string GenerateToken(
         Guid userId,
-        string email
+        string email,
+        Guid deviceId
     )
     {
         var jwtSettings = _configuration.GetSection("Jwt");
@@ -48,7 +49,8 @@ public class JwtTokenGenerator : IJwtTokenGenerator
         {
             new Claim(JwtRegisteredClaimNames.Sub, userId.ToString()),
             new Claim(JwtRegisteredClaimNames.Email, email),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+            new Claim("device_id", deviceId.ToString())
         };
 
         var token = new JwtSecurityToken(

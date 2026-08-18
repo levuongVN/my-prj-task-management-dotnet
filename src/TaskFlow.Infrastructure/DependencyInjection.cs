@@ -89,6 +89,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IDeviceRepository, DeviceRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<IMeetingRepository, MeetingRepository>();

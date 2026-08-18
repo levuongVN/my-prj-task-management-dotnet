@@ -3,6 +3,7 @@ using TaskFlow.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
+builder.Services.AddDetection();
 builder.Services.AddApplication();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
@@ -32,6 +33,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // MIDDLEWARE
+app.UseDetection();
 app.UseCors("AllowFrontend");
 app.UseMiddleware<ExceptionHandingMiddleware>();
 //auth

@@ -4,6 +4,7 @@ public interface IJwtTokenGenerator
 {
     string GenerateToken(
         Guid userId,
-        string email
+        string email,
+        Guid deviceId
     );
 }
