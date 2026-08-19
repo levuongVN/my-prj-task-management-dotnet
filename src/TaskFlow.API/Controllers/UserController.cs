@@ -63,6 +63,7 @@ public class UserController : ControllerBase
 
         var result = await _service.UpdatePasswordAsync(
                 user,
+                request.CurrentPassword,
                 request.NewPassword
             );
 

@@ -29,19 +29,14 @@ public class UserRepository : IUserRepository
             x => x.Id == id
         );
     }
-        public async Task<User> UpdateAsync(User user)
+    public async Task<User> UpdateAsync(User user)
     {
-        try
-        {
-            _context.Update(user);
-            await _context.SaveChangesAsync();
-            return user;    
-        }
-        catch(Exception ex)
-        {
-            throw new Exception("Can not update data",ex);
-        }
-        
+
+        _context.Update(user);
+        await _context.SaveChangesAsync();
+        return user;
+
+
     }
-    
+
 }

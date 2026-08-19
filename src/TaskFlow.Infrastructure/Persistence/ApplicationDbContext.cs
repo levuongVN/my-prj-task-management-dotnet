@@ -15,9 +15,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users => Set<User>();
 
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
-    public DbSet<Project> Projects { get; set; }
-    public DbSet<Meeting> Meetings { get; set; }
-
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<Meeting> Meetings => Set<Meeting>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<UserDevice> UserDevices => Set<UserDevice>();
