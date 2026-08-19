@@ -12,8 +12,11 @@ public class RefreshToken : BaseEntity
 
     public Guid UserId { get; set; }
 
+    public Guid? UserDeviceId { get; set; }
+
     // Navigation Property
     public User User { get; set; } = null!;
+    public UserDevice? UserDevice { get; set; }
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }
