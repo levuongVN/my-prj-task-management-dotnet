@@ -1,5 +1,6 @@
 using TaskFlow.Application;
 using TaskFlow.Infrastructure;
+using TaskFlow.API.MiddleWare;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
@@ -43,6 +44,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseMiddleware<DeviceTrackingMiddleware>();
 
 
 // MAP CONTROLLERS
