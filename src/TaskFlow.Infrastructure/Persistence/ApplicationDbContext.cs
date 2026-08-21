@@ -15,9 +15,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<User> Users => Set<User>();
 
     public DbSet<TaskItem> Tasks => Set<TaskItem>();
-    public DbSet<Project> Projects { get; set; }
-    public DbSet<Meeting> Meetings { get; set; }
-
+    public DbSet<Project> Projects => Set<Project>();
+    public DbSet<Meeting> Meetings => Set<Meeting>();
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<UserDevice> UserDevices => Set<UserDevice>();
@@ -94,10 +93,21 @@ public class ApplicationDbContext : DbContext
                 .WithMany(x => x.RefreshTokens)
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(x => x.UserDevice)
+                .WithMany(x => x.RefreshTokens)
+                .HasForeignKey(x => x.UserDeviceId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasIndex(x => new { x.UserId, x.UserDeviceId });
         });
         modelBuilder.Entity<UserDevice>(entity =>
         {
             entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.DeviceFingerprint)
+                .IsRequired()
+                .HasMaxLength(255);
 
             entity.Property(x => x.DeviceType)
                 .IsRequired()
@@ -110,15 +120,18 @@ public class ApplicationDbContext : DbContext
                 .HasMaxLength(500);
 
             entity.HasIndex(x => x.DeviceToken)
-                .HasFilter("\"DeviceToken\" IS NOT NULL"); // Chỉ tạo index cho các bản ghi có token
+                .HasFilter("\"DeviceToken\" IS NOT NULL");
 
             entity.Property(x => x.IpAddress)
-                .HasMaxLength(45); // Hỗ trợ cả IPv4 và IPv6
+                .HasMaxLength(45);
 
             entity.HasOne(x => x.User)
                 .WithMany(x => x.Devices)
                 .HasForeignKey(x => x.UserId)
-                .OnDelete(DeleteBehavior.Cascade); // Xóa User thì tự động xóa các thiết bị liên kết
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasIndex(x => new { x.UserId, x.DeviceFingerprint })
+                .IsUnique();
         });
     }
 }

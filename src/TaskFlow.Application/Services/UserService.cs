@@ -77,18 +77,27 @@ public class UserService : IUserService
             CreatedAt = updatedUser.CreatedAt
         };
     }
-    public async Task<bool> UpdatePasswordAsync(UserDto user, String newPassword)
+    public async Task<bool> UpdatePasswordAsync(UserDto user,String currentPassword,String newPassword)
     {
         User? userCurrent = await _userRepository.GetByIdAsync(user.Id);
         if (userCurrent == null)
         {
             throw new KeyNotFoundException("User not found");
         }
+        if(String.IsNullOrWhiteSpace(currentPassword) || currentPassword.Length < 6)
+        {
+            throw new ArgumentException("The current password is invalid");
+        }
+        bool isVerifyPassword = BCrypt.Net.BCrypt.Verify(currentPassword,userCurrent.PasswordHash);
+        if (!isVerifyPassword)
+        {
+            throw new ArgumentException("The current password is not true!");
+        }
         if (String.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 6)
         {
             throw new ArgumentException("The new password is invalid");
         }
-        bool isDuplicate = BCrypt.Net.BCrypt.Verify(newPassword, userCurrent.PasswordHash);
+        bool isDuplicate = newPassword.Equals(currentPassword);
         if (isDuplicate)
         {
             throw new ArgumentException("New password must be difference current password");

@@ -1,8 +1,10 @@
 using TaskFlow.Application;
 using TaskFlow.Infrastructure;
+using TaskFlow.API.MiddleWare;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
+builder.Services.AddDetection();
 builder.Services.AddApplication();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
@@ -32,6 +34,7 @@ if (app.Environment.IsDevelopment())
 }
 
 // MIDDLEWARE
+app.UseDetection();
 app.UseCors("AllowFrontend");
 app.UseMiddleware<ExceptionHandingMiddleware>();
 //auth
@@ -41,6 +44,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseMiddleware<DeviceTrackingMiddleware>();
 
 
 // MAP CONTROLLERS

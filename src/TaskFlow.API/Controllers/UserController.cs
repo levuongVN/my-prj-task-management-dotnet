@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskFlow.Application.Features.Auth.DTOs;
+using TaskFlow.Application.Interfaces;
 
 [ApiController]
 [Route("api/me")]
@@ -9,15 +10,25 @@ using TaskFlow.Application.Features.Auth.DTOs;
 public class UserController : ControllerBase
 {
     private readonly IUserService _service;
+    private readonly IDeviceService _deviceService;
 
     private Guid CurrentUserId =>
         Guid.Parse(
             User.FindFirstValue(ClaimTypes.NameIdentifier)!
         );
 
-    public UserController(IUserService service)
+    private Guid CurrentDeviceId =>
+        Guid.TryParse(
+            User.FindFirstValue("device_id"),
+            out var deviceId
+        )
+            ? deviceId
+            : Guid.Empty;
+
+    public UserController(IUserService service, IDeviceService deviceService)
     {
         _service = service;
+        _deviceService = deviceService;
     }
 
 
@@ -63,6 +74,7 @@ public class UserController : ControllerBase
 
         var result = await _service.UpdatePasswordAsync(
                 user,
+                request.CurrentPassword,
                 request.NewPassword
             );
 
@@ -111,5 +123,29 @@ public class UserController : ControllerBase
             );
 
         return Ok(result);
+    }
+
+    // GET /api/me/devices
+    [HttpGet("devices")]
+    public async Task<IActionResult> GetDevices()
+    {
+        var devices = await _deviceService.GetUserDevicesAsync(
+            CurrentUserId,
+            CurrentDeviceId
+        );
+
+        return Ok(devices);
+    }
+
+    // DELETE /api/me/devices/{deviceId}
+    [HttpDelete("devices/{deviceId:guid}")]
+    public async Task<IActionResult> RevokeDevice(Guid deviceId)
+    {
+        await _deviceService.RevokeDeviceAsync(
+            CurrentUserId,
+            deviceId
+        );
+
+        return Ok(new { message = "Device logged out successfully" });
     }
 }
