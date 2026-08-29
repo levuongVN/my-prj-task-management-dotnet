@@ -10,10 +10,6 @@ using TaskFlow.Application.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using TaskFlow.Application.Features.Meetings.Interfaces;
-using TaskFlow.Application.Features.Meetings.Services;
-using TaskFlow.Application.Features.Analytics.Interfaces;
-using TaskFlow.Application.Features.Analytics.Services;
 using Amazon.S3;
 using Amazon.Runtime;
 using Microsoft.Extensions.Options;
@@ -22,9 +18,7 @@ namespace TaskFlow.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(
-    this IServiceCollection services,
-    IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services,IConfiguration configuration)
     {
         services.AddDbContext<ApplicationDbContext>(options =>
             options.UseNpgsql(
@@ -105,12 +99,10 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IDeviceRepository, DeviceRepository>();
+        services.AddScoped<INotificationRepository, NotificationRepository>();
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<IMeetingRepository, MeetingRepository>();
-        services.AddScoped<IMeetingService, MeetingService>();
-        services.AddScoped<IAnalyticsService, AnalyticsService>();
-        services.AddScoped<IUserService, UserService>();
         services.AddScoped<IFileStorageService, SupabaseStorageService>();
         return services;
     }

@@ -1,15 +1,17 @@
 using TaskFlow.Application;
 using TaskFlow.Infrastructure;
 using TaskFlow.API.MiddleWare;
+using TaskFlow.API;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddOpenApi();
 builder.Services.AddDetection();
-builder.Services.AddApplication();
+builder.Services.AddApplication(); // DI of service
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
-builder.Services.AddInfrastructure(
+builder.Services.AddAPI(); // DI of controller
+builder.Services.AddInfrastructure( // DI of infrastructure
     builder.Configuration
 );
 
