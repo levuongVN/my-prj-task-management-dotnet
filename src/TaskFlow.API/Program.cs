@@ -8,6 +8,7 @@ builder.Services.AddDetection();
 builder.Services.AddApplication();
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddInfrastructure(
     builder.Configuration
 );
@@ -20,7 +21,8 @@ builder.Services.AddCors(options =>
             policy
                 .WithOrigins("http://localhost:5173")
                 .AllowAnyHeader()
-                .AllowAnyMethod();
+                .AllowAnyMethod()
+                .AllowCredentials();
         });
 });
 
@@ -50,5 +52,6 @@ app.UseMiddleware<DeviceTrackingMiddleware>();
 
 // MAP CONTROLLERS
 app.MapControllers();
+app.MapHub<TaskFlow.API.Hubs.NotificationHub>("/hubs/notification");
 
 app.Run();
