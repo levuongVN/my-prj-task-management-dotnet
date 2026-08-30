@@ -13,6 +13,9 @@ using System.Text;
 using Amazon.S3;
 using Amazon.Runtime;
 using Microsoft.Extensions.Options;
+using Hangfire;
+using Hangfire.PostgreSql;
+using TaskFlow.Infrastructure.Jobs;
 
 namespace TaskFlow.Infrastructure;
 
@@ -25,6 +28,17 @@ public static class DependencyInjection
                 configuration.GetConnectionString("DefaultConnection")
             )
         );
+
+        services.AddHangfire(config =>
+            config.UsePostgreSqlStorage(
+                options => options.UseNpgsqlConnection(
+                    configuration.GetConnectionString("DefaultConnection")
+                )
+            )
+        );
+        services.AddHangfireServer(); // This is "Worker" it will process the jobs in the background
+        services.AddScoped<NotificationJobs>();
+        services.AddHostedService<NotificationJobScheduler>(); // This is "Scheduler" it will schedule the jobs to be processed by the worker
 
         services.AddAuthentication(
             JwtBearerDefaults.AuthenticationScheme
