@@ -24,7 +24,7 @@ public class DeviceTrackingMiddleware
         {
             var now = DateTime.UtcNow;
 
-            if (!_lastUpdateMap.TryGetValue(deviceId, out var lastUpdate) ||
+            if ( !_lastUpdateMap.TryGetValue(deviceId, out var lastUpdate) ||
                 (now - lastUpdate) > ThrottleInterval)
             {
                 _lastUpdateMap[deviceId] = now;
