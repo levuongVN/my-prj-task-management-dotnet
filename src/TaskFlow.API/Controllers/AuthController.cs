@@ -66,4 +66,29 @@ public class AuthController : ControllerBase
             });
         }
     }
+
+    [HttpPost("logout")]
+    public async Task<IActionResult> Logout(
+        [FromBody] LogoutRequest request
+    )
+    {
+        // Idempotent: token không tồn tại/hết hạn vẫn trả 200
+        // để FE luôn dọn localStorage và redirect về login
+        try
+        {
+            await _authService.Logout(request);
+
+            return Ok(new
+            {
+                message = "Logged out successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
+            });
+        }
+    }
 }
