@@ -156,4 +156,29 @@ public class AuthService(
                Guid.NewGuid().ToString();
     }
 
+    public async Task Logout(LogoutRequest request)
+    {
+        var storedToken = await _refreshTokenRepository.GetByTokenAsync(
+            request.RefreshToken
+        );
+
+        if (storedToken == null || storedToken.IsRevoked)
+        {
+            // Idempotent: logout lại nhiều lần vẫn thành công
+            return;
+        }
+
+        if (storedToken.UserDeviceId != null)
+        {
+            // Revoke toàn bộ refresh token của device + deactivate device
+            // (tab khác cùng browser cũng bị đăng xuất)
+            await _deviceService.RevokeDeviceAsync(
+                storedToken.UserId,
+                storedToken.UserDeviceId.Value
+            );
+        }
+
+        storedToken.IsRevoked = true;
+        await _refreshTokenRepository.SaveChangesAsync();
+    }
 }

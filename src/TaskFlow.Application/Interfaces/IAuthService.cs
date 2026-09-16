@@ -7,4 +7,5 @@ public interface IAuthService
 {
     Task<AuthResponse> Login(LoginRequest request, string? ipAddress = null, string? deviceType = null, string? deviceName = null);
     Task<AuthResponse> RefreshToken(RefreshTokenRequest request);
+    Task Logout(LogoutRequest request);
 }
