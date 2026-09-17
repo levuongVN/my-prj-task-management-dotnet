@@ -118,6 +118,10 @@ public static class DependencyInjection
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<IMeetingRepository, MeetingRepository>();
         services.AddScoped<IFileStorageService, SupabaseStorageService>();
+
+        // OAuth providers: Google validate ID token, GitHub dùng typed HttpClient
+        services.AddHttpClient<IGitHubAuthProvider, GitHubAuthProvider>();
+        services.AddScoped<IGoogleAuthProvider, GoogleAuthProvider>();
         return services;
     }
 }

@@ -39,4 +39,12 @@ public class UserRepository : IUserRepository
 
     }
 
+    // Dùng cho auto-provisioning khi login lần đầu bằng Google/GitHub
+    public async Task<User> AddAsync(User user)
+    {
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+        return user;
+    }
+
 }

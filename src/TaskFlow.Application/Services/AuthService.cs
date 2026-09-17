@@ -11,13 +11,17 @@ public class AuthService(
     IJwtTokenGenerator jwtTokenGenerator,
     IUserRepository userRepository,
     IRefreshTokenRepository refreshTokenRepository,
-    IDeviceService deviceService
+    IDeviceService deviceService,
+    IGoogleAuthProvider googleAuthProvider,
+    IGitHubAuthProvider gitHubAuthProvider
 ) : IAuthService
 {
     private readonly IJwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly IDeviceService _deviceService = deviceService;
+    private readonly IGoogleAuthProvider _googleAuthProvider = googleAuthProvider;
+    private readonly IGitHubAuthProvider _gitHubAuthProvider = gitHubAuthProvider;
 
     public async Task<AuthResponse> Login(
     LoginRequest request,
@@ -32,9 +36,13 @@ public class AuthService(
 
         if (user == null)
         {
+            // Lưu ý: message trả thẳng ra 400 - dev-only,
+            // production nên đổi chung 1 message để không lộ user nào tồn tại
             throw new Exception("User not found");
         }
 
+        // BCrypt hash là one-way: Verify(password nhập vào + hash lưu trong DB)
+        // so khớp ngay trên hash. DB không bao giờ giữ password thô.
         var isValidPassword = BCrypt.Net.BCrypt.Verify(
             request.Password,
             user.PasswordHash
@@ -45,25 +53,61 @@ public class AuthService(
             throw new Exception("Invalid password");
         }
 
+        // Phần upsert device + cấp token dùng chung với OAuth login
+        return await IssueTokensAsync(
+            user,
+            request.Device,
+            ipAddress,
+            deviceType,
+            deviceName
+        );
+    }
+
+    /// <summary>
+    /// Phần chung của mọi luồng đăng nhập (password / Google / GitHub):
+    /// upsert device tracking -> sinh access token (JWT) -> tạo refresh token (7 ngày).
+    /// Vì kết quả trả ra (AuthResponse) GIỐNG HỆT nhau ở cả 3 luồng nên FE
+    /// không cần biết user login bằng cách nào - xử lý token như cũ.
+    /// </summary>
+    private async Task<AuthResponse> IssueTokensAsync(
+        User user,
+        DeviceRequest? deviceRequest = null,
+        string? ipAddress = null,
+        string? deviceType = null,
+        string? deviceName = null
+    )
+    {
         UserDevice? device = null;
 
-        if (request.Device != null)
+        // BƯỚC 1: đăng ký/cập nhật device đang login.
+        // FE gửi fingerprint (UUID cố định trong localStorage) -> BE sẽ:
+        //   - fingerprint đã có  -> update LastLoginAt + IsActive = true (tái sử dụng)
+        //   - fingerprint mới    -> tạo device mới (nếu đã đủ 3 device active -> chiếm chỗ device cũ nhất)
+        // Device là chỗ gắn đời sống session: logout/revoke device sẽ giết toàn bộ refresh token của nó.
+        if (deviceRequest != null)
         {
             device = await _deviceService.UpsertDeviceAsync(
                 user.Id,
-                request.Device,
+                deviceRequest,
                 ipAddress,
                 deviceType ?? "Unknown",
                 deviceName ?? "Unknown device"
             );
         }
 
+        // BƯỚC 2: access token - JWT sống 10 phút (Jwt:ExpiryMinutes), FE đính vào
+        // claim device_id để middleware tracking và "Logout device" trong Settings
+        // biết device nào là device đang dùng (IsCurrentDevice).
         var accessToken = _jwtTokenGenerator.GenerateToken(
             user.Id,
             user.Email,
             device?.Id ?? Guid.Empty
         );
 
+        // BƯỚC 3: refresh token - 1 chuỗi random lưu DB, sống 7 ngày.
+        // Access token hết hạn (10') -> FE POST /auth/refresh-token để lấy cái mới,
+        // hạn lớn hơn access token => user không phải login lại giữa chừng.
+        // isRevoked flag + gắn với device: logout/revoke device -> chết hết session.
         var refreshTokenString = GenerateRefreshToken();
 
         var refreshToken = new RefreshToken
@@ -148,6 +192,118 @@ public class AuthService(
                 CreatedAt = storedToken.User.CreatedAt
             }
         };
+    }
+
+    // FLOW GOOGLE (FE dùng Google Identity Services):
+    //   user chọn account trên popup Google -> Google trả ID token (JWT do Google ký)
+    //   -> FE POST /auth/google { idToken, device }
+    //   -> BE VERIFY token (không bao giờ tin nguyên token JWT blind)
+    //   -> lấy email/name -> GetOrCreateUser -> IssueTokens (như login thường)
+    public async Task<AuthResponse> LoginWithGoogle(
+        GoogleLoginRequest request,
+        string? ipAddress = null,
+        string? deviceType = null,
+        string? deviceName = null
+    )
+    {
+        // Verify ID token với Google: kiểm tra chữ ký, hạn dùng, audience (Client ID).
+        // Token giả/hết hạn/token của app khác sẽ ném exception -> controller trả 400.
+        // Nếu không verify, attacker có thể tự tạo token khai email của người khác
+        // và đăng nhập vào account đó - đây là điểm bảo mật quan trọng nhất.
+        var googleUser = await _googleAuthProvider.ValidateIdTokenAsync(
+            request.IdToken
+        );
+
+        // Chưa verify thì chưa tin email, verify xong mới match/tạo user
+        var user = await GetOrCreateUserAsync(
+            googleUser.Email,
+            googleUser.FullName
+        );
+
+        // Đã có user -> phát hành session đúng như login bằng password
+        return await IssueTokensAsync(
+            user,
+            request.Device,
+            ipAddress,
+            deviceType,
+            deviceName
+        );
+    }
+
+    // FLOW GITHUB (FE chỉ redirect - code exchange phải làm ở BE):
+    //   FE redirect sang github.com/login/oauth/authorize -> user Allow
+    //   -> GitHub redirect về FE callback kèm ?code=xxx (code dùng 1 lần, chết trong vài phút)
+    //   -> FE POST /auth/github { code, device }
+    //   -> BE dùng code + CLIENT SECRET đổi access token - secret nằm ở BE, không bao giờ ở FE
+    //   -> gọi GitHub API lấy email/name -> same flow như Google
+    public async Task<AuthResponse> LoginWithGitHub(
+        GithubLoginRequest request,
+        string? ipAddress = null,
+        string? deviceType = null,
+        string? deviceName = null
+    )
+    {
+        // Exchange code -> access token -> user info, xem chi tiết trong GitHubAuthProvider
+        var githubUser = await _gitHubAuthProvider.ExchangeCodeAsync(
+            request.Code
+        );
+
+        var user = await GetOrCreateUserAsync(
+            githubUser.Email,
+            githubUser.FullName
+        );
+
+        return await IssueTokensAsync(
+            user,
+            request.Device,
+            ipAddress,
+            deviceType,
+            deviceName
+        );
+    }
+
+    /// <summary>
+    /// OAuth không có mật khẩu: email đã tồn tại -> dùng luôn account đó,
+    /// email mới -> tự tạo user (PasswordHash rỗng, chỉ login bằng provider).
+    /// Email lấy trực tiếp từ Google/GitHub (đã verified phía provider)
+    /// nên được coi là "chắc chắn thuộc người vừa login" -> đủ tin để match.
+    /// </summary>
+    private async Task<User> GetOrCreateUserAsync(
+        string email,
+        string? fullName
+    )
+    {
+        var user = await _userRepository.GetByEmailAsync(email);
+
+        // CASE 1: email đã có account (từ trước, có thể là password session)
+        // -> login thẳng vào account cũ, không đụng password
+        if (user != null)
+        {
+            return user;
+        }
+
+        // CASE 2: email chưa có -> tự tạo user (auto-provisioning),
+        // không có trang Register riêng cho OAuth
+        var newUser = new User
+        {
+            Email = email,
+
+            // OAuth user không đăng nhập bằng password -> để rỗng (cột string
+            // non-nullable). BCrypt.Verify luôn fail nếu ai thử đăng nhập thường.
+            PasswordHash = string.Empty,
+
+            // Provider có thể không trả tên (GitHub name nullable)
+            // -> fallback về email cho thỏa unique requirement
+            FullName = string.IsNullOrWhiteSpace(fullName) ? email : fullName,
+
+            // KHÔNG lưu avatarUrl của provider vào AvatarPath: cột này dành cho
+            // PATH sau khi upload lên Supabase (GetProfileAsync sẽ tạo signed URL
+            // từ path đó, dính foreign URL sẽ ra URL sai) -> để null,
+            // FE tự fallback hiển thị chữ cái đầu
+            AvatarPath = null
+        };
+
+        return await _userRepository.AddAsync(newUser);
     }
 
     private string GenerateRefreshToken()
