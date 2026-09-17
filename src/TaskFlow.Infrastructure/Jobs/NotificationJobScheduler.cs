@@ -30,6 +30,11 @@ public class NotificationJobScheduler : IHostedService
             job => job.SendDeadlineApproachingNotificationsAsync(2),
             "*/10 * * * *");
 
+        RecurringJob.AddOrUpdate<NotificationJobs>(
+            "send-meeting-reminder-notifications",
+            job => job.SendMeetingReminderNotificationsAsync(2),
+            "*/10 * * * *");
+
         return Task.CompletedTask;
     }
 

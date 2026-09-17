@@ -58,22 +58,10 @@ public class NotificationService : INotificationService
 
     public async Task<int> MarkAllAsReadAsync(Guid userId)
     {
-        var notifications = await _notificationRepository.GetByUserIdAsync(userId);
-
-        var unread = notifications.Where(n => n.ReadAt == null).ToList();
-
-        if (unread.Count == 0)
-        {
-            return 0;
-        }
-
-        foreach (var notification in unread)
-        {
-            notification.ReadAt = DateTime.UtcNow;
-            await _notificationRepository.UpdateAsync(notification);
-        }
-
-        return unread.Count;
+        // Ủy thẳng xuống repository (bulk update) - service chỉ giữ nghiệp vụ,
+        // không tự nạp từng notification rồi Update (đó là nguyên nhân bug bỏ sót
+        // các notification cũ hơn 50 bản ghi trước đây)
+        return await _notificationRepository.MarkAllAsReadAsync(userId);
     }
 
     public async Task<NotificationDto> CreateAndSendAsync(
@@ -86,6 +74,7 @@ public class NotificationService : INotificationService
         Guid? meetingId = null,
         string? deduplicationKey = null)
     {
+        // Fast path: đã tồn tại -> trả luôn, không spam lại
         if (!string.IsNullOrEmpty(deduplicationKey))
         {
             var existing = await _notificationRepository.GetByDeduplicationKeyAsync(deduplicationKey);
@@ -96,7 +85,7 @@ public class NotificationService : INotificationService
             }
         }
 
-        var notification = await _notificationRepository.AddAsync(new Notification
+        var notification = new Notification
         {
             UserId = userId,
             Type = type,
@@ -106,11 +95,21 @@ public class NotificationService : INotificationService
             ProjectId = projectId,
             MeetingId = meetingId,
             DeduplicationKey = deduplicationKey ?? string.Empty
-        });
+        };
 
-        await _notificationSender.SendNotificationAsync(userId, notification);
+        // Repository tự xử lý race: nếu unique index trên DeduplicationKey bắt
+        // được trùng (2 job chạy đồng thời), AddAsync trả về BẢN GHI ĐÃ TỒN TẠI
+        // (reference khác object mình truyền vào) thay vì ném exception.
+        var created = await _notificationRepository.AddAsync(notification);
 
-        return ToDto(notification);
+        // Chỉ push realtime khi THẬT SỰ tạo mới (thắng race). Nếu thua race,
+        // bản ghi đã được gửi realtime bởi job kia rồi -> không gửi trùng toast.
+        if (ReferenceEquals(created, notification))
+        {
+            await _notificationSender.SendNotificationAsync(userId, created);
+        }
+
+        return ToDto(created);
     }
 
     private static NotificationDto ToDto(Notification n)

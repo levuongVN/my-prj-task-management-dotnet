@@ -10,4 +10,5 @@ public interface INotificationRepository
     Task<Notification> AddAsync(Notification notification);
     Task<Notification?> GetByDeduplicationKeyAsync(string deduplicationKey);
     Task<Notification> UpdateAsync(Notification notification);
+    Task<int> MarkAllAsReadAsync(Guid userId);
 }

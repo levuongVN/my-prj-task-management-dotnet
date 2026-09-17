@@ -37,8 +37,37 @@ public class NotificationRepository : INotificationRepository
     public async Task<Notification> AddAsync(Notification notification)
     {
         _context.Notifications.Add(notification);
-        await _context.SaveChangesAsync();
-        return notification;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return notification;
+        }
+        catch (DbUpdateException)
+        {
+            // Unique index trên DeduplicationKey chặn insert thứ 2 khi 2 job
+            // Hangfire chạy đồng thời cùng tạo 1 notification. Thay vì crash job,
+            // ta trả về bản ghi đã tồn tại (service dùng ReferenceEquals để biết
+            // "thua race" và bỏ qua bước gửi realtime trùng).
+            _context.Entry(notification).State = EntityState.Detached;
+
+            // Dedup key rỗng => không phải lỗi trùng dedup, ném tiếp đúng lỗi gốc
+            if (string.IsNullOrEmpty(notification.DeduplicationKey))
+            {
+                throw;
+            }
+
+            var existing = await _context.Notifications
+                .AsNoTracking()
+                .FirstOrDefaultAsync(n => n.DeduplicationKey == notification.DeduplicationKey);
+
+            if (existing == null)
+            {
+                throw;
+            }
+
+            return existing;
+        }
     }
 
     public async Task<Notification?> GetByDeduplicationKeyAsync(string deduplicationKey)
@@ -52,5 +81,16 @@ public class NotificationRepository : INotificationRepository
         _context.Notifications.Update(notification);
         await _context.SaveChangesAsync();
         return notification;
+    }
+
+    public async Task<int> MarkAllAsReadAsync(Guid userId)
+    {
+        // ExecuteUpdateAsync sinh 1 câu UPDATE ... WHERE UserId=... AND ReadAt IS NULL
+        // -> đánh dấu toàn bộ unread (không giới hạn 50), không cần nạp entity,
+        // tránh N+1 (mỗi notification 1 SaveChanges như code cũ)
+        return await _context.Notifications
+            .Where(n => n.UserId == userId && n.ReadAt == null)
+            .ExecuteUpdateAsync(s =>
+                s.SetProperty(n => n.ReadAt, DateTime.UtcNow));
     }
 }

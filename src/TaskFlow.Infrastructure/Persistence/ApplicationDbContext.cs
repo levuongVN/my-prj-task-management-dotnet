@@ -133,5 +133,26 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(x => new { x.UserId, x.DeviceFingerprint })
                 .IsUnique();
         });
+
+        modelBuilder.Entity<Notification>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            // Dedup chống trùng notification (Hangfire job chạy lặp 10 phút).
+            // Unique index chỉ áp dụng khi DeduplicationKey KHÁC rỗng (filter)
+            // vì notification không có dedup key lưu chuỗi "" -> nếu đánh unique
+            // toàn cột sẽ chặn nhiều notification thường có key "".
+            entity.HasIndex(x => x.DeduplicationKey)
+                .IsUnique()
+                .HasFilter("\"DeduplicationKey\" <> ''");
+
+            // Index hỗ trợ query theo user + sắp theo CreatedAt (list notification)
+            entity.HasIndex(x => new { x.UserId, x.CreatedAt });
+
+            entity.HasOne(x => x.User)
+                .WithMany(x => x.Notifications)
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
     }
 }
