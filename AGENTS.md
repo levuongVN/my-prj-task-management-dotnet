@@ -1,11 +1,31 @@
 # AGENTS.md
 
-This file is the working guide for AI agents modifying this repository (TaskFlow backend).
+This file is the strict working guide for AI agents modifying this repository (TaskFlow backend).
+Read and follow these rules before making changes.
 
-## Token & Efficiency Rules
+## Model Routing & Efficiency Rules
 
-1. **Strict Context Boundary:** Read/search inside the target layer first (`src/TaskFlow.<Layer>/`). Do not run broad project-wide globs unless the change is genuinely cross-layer.
-2. **Model Usage:** Use light models for simple edits (renames, field additions, DTO tweaks). Do not prompt for deep reasoning on routine changes.
+Classify the current workflow phase and task complexity before starting. Use the lightest model
+capable of completing the work correctly. Preferred model examples apply only when those models
+are available in the execution environment; model availability must never block the task.
+
+| Phase | Routine work | Complex work |
+|---|---|---|
+| Explore | Flash/fast model for targeted file and dependency searches | Max/reasoning model when tracing cross-layer behavior |
+| Plan | Strong reasoning model for a focused implementation plan | Orchestrator/architecture model for new features, migrations, or cross-layer refactors |
+| Code | Flash model for DTOs, renames, simple CRUD, and syntax fixes | Max model for EF Core/LINQ, business logic, SignalR, and complex mappings |
+| Test | Flash model for standard test execution and straightforward fixes | Max model for integration failures, concurrency, security, performance, or flaky tests |
+| Review | Review sub-agent for convention and dependency checks | Strong reasoning model for architecture or security review |
+
+Preferred routing, when supported: DeepSeek V4 Flash or GLM-5.3-Flash for routine edits;
+Qwen3.7 Max or Qwen3.8 Max for complex coding; Kimi K2.7 Code for long sequential flows;
+GLM-5.3 or GLM-5.2 for architecture and planning.
+
+Do not ask the user to switch models for routine work. If a preferred model is unavailable,
+continue with the current model and preserve the same correctness and verification requirements.
+
+**Strict Context Boundary:** Read/search inside the target layer first (`src/TaskFlow.<Layer>/`).
+Do not run broad project-wide globs unless the change is genuinely cross-layer.
 
 ## Project Overview
 
@@ -46,14 +66,14 @@ Each layer registers its own services in its own `DependencyInjection.cs`:
 | Infrastructure | `src/TaskFlow.Infrastructure/DependencyInjection.cs` | `AddInfrastructure(configuration)` | DbContext, JWT, Hangfire, S3, repositories, storage impl |
 
 Rules:
-- `Program.cs` only calls `AddApplication()`, `AddAPI()`, `AddInfrastructure(configuration)`. **Never register DI inline in Program.cs.**
+- `Program.cs` calls `AddApplication()`, `AddAPI()`, and `AddInfrastructure(configuration)` for layer-owned registrations. Framework setup may remain there, but business and infrastructure services must not be registered inline in `Program.cs`.
 - Business-logic services belong in `Application/Services` and are registered in `AddApplication`, **never** in `AddInfrastructure`.
 - Repositories/interfaces: interface in `Application/Interfaces`, implementation in `Infrastructure/Repositories`.
 
 ## Conventions
 
-- Controllers: `[ApiController] [Authorize] [Route("api/<resource>")]`; get current user via `User.FindFirstValue(ClaimTypes.NameIdentifier)`.
-- DTOs live in `Application/DTOs`; entities in `Domain/Entities`; enums in `Domain/Enums`.
+- Controllers: use `[ApiController]` and `[Route("api/<resource>")]`; protected endpoints use `[Authorize]`, while login, token refresh, and OAuth endpoints remain anonymous. Get the current user via `User.FindFirstValue(ClaimTypes.NameIdentifier)`.
+- DTOs live in `Application/DTOs` or feature-specific `Application/Features/*/DTOs`; entities in `Domain/Entities`; enums in `Domain/Enums`.
 - Namespaces: `TaskFlow.API.*`, `TaskFlow.Application.*`, `TaskFlow.Infrastructure.*`, `TaskFlow.Domain.*`.
 - Entity `TaskItem` maps to the `Tasks` DbSet (`DbSet<TaskItem> Tasks`), status enum `TaskFlow.Domain.Enums.TaskStatus` (Todo, InProgress, InPreview, Done).
 
@@ -67,7 +87,7 @@ Rules:
 - SignalR hub mapped at `/hubs/notification` (`NotificationHub` in API); realtime event name `"NotificationReceived"` carrying a `NotificationDto`.
 - `NotificationService.CreateAndSendAsync(...)` (Application) both saves a row to the `Notifications` table and pushes realtime via `INotificationSender` (`NotificationSender` in API using `IHubContext`).
 - Deduplication via `DeduplicationKey` (e.g. `task-overdue-{taskId}`). Types: `1` TaskDeadlineApproaching, `2` TaskOverdue, `3` MeetingReminder.
-- Hangfire recurring job (every 10 min, cron `*/10 * * * *`) in `Infrastructure/Jobs` auto-scans tasks — overdue, and deadline approaching within 2h — then calls `CreateAndSendAsync`. Jobs are registered by `NotificationJobScheduler` (IHostedService).
+- Hangfire recurring jobs (every 10 min, cron `*/10 * * * *`) in `Infrastructure/Jobs` scan overdue tasks, tasks with deadlines within 2h, and meetings within 2h, then call `CreateAndSendAsync`. Jobs are registered by `NotificationJobScheduler` (IHostedService).
 
 ## Dev URLs / Ports
 
@@ -78,8 +98,8 @@ Rules:
 
 ```bash
 dotnet build            # must be 0 warnings, 0 errors
-dotnet ef migrations add <Name>   # from Infrastructure when schema changes
-dotnet ef database update
+dotnet ef migrations add <Name> --project src/TaskFlow.Infrastructure --startup-project src/TaskFlow.API
+dotnet ef database update --project src/TaskFlow.Infrastructure --startup-project src/TaskFlow.API
 ```
 
 ## Rules
