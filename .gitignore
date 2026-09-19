@@ -50,3 +50,6 @@ coverage.*
 
 # OS files
 .DS_Store
+
+# Local AI agent tooling (machine-specific)
+opencode.json
