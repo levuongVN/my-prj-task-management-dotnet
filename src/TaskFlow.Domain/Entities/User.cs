@@ -17,4 +17,5 @@ public class User : AuditableEntity
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     public ICollection<UserDevice> Devices { get; set; } = new List<UserDevice>();
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }

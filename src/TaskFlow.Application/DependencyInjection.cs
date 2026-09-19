@@ -8,6 +8,8 @@ using TaskFlow.Application.Features.Meetings.Interfaces;
 using TaskFlow.Application.Features.Meetings.Services;
 using TaskFlow.Application.Features.Analytics.Interfaces;
 using TaskFlow.Application.Features.Analytics.Services;
+using TaskFlow.Application.Features.Comments.Interfaces;
+using TaskFlow.Application.Features.Comments.Services;
 
 namespace TaskFlow.Application;
 
@@ -25,6 +27,7 @@ public static class DependencyInjection
         services.AddScoped<INotificationService, NotificationService>();
         services.AddScoped<IMeetingService, MeetingService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
+        services.AddScoped<ICommentService, CommentService>();
         return services;
     }
 }

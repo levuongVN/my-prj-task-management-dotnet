@@ -117,6 +117,7 @@ public static class DependencyInjection
         services.AddScoped<ITaskRepository, TaskRepository>();
         services.AddScoped<IProjectRepository, ProjectRepository>();
         services.AddScoped<IMeetingRepository, MeetingRepository>();
+        services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<IFileStorageService, SupabaseStorageService>();
 
         // OAuth providers: Google validate ID token, GitHub dùng typed HttpClient

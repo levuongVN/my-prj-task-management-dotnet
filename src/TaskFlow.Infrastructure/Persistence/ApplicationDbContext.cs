@@ -20,6 +20,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<UserDevice> UserDevices => Set<UserDevice>();
+    public DbSet<Comment> Comments => Set<Comment>();
 
     public override int SaveChanges()
     {
@@ -152,6 +153,27 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(x => x.User)
                 .WithMany(x => x.Notifications)
                 .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Comment>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Content)
+                .IsRequired()
+                .HasMaxLength(2000);
+
+            entity.HasIndex(x => new { x.TaskId, x.CreatedAt });
+
+            entity.HasOne(x => x.Task)
+                .WithMany(x => x.Comments)
+                .HasForeignKey(x => x.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(x => x.Author)
+                .WithMany(x => x.Comments)
+                .HasForeignKey(x => x.AuthorId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

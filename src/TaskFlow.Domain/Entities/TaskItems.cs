@@ -28,4 +28,6 @@ public class TaskItem : AuditableEntity
     // Navigation Property
     public User User { get; set; } = null!;
 
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
+
 }
