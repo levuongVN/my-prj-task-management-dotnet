@@ -23,4 +23,12 @@ public class TaskResponse
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public List<SubtaskResponse> Subtasks { get; set; } = new();
+
+    public int TotalSubtasks { get; set; }
+
+    public int CompletedSubtasks { get; set; }
+
+    public int ProgressPercent { get; set; }
 }

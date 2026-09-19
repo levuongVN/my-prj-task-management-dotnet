@@ -21,6 +21,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<Notification> Notifications => Set<Notification>();
     public DbSet<UserDevice> UserDevices => Set<UserDevice>();
     public DbSet<Comment> Comments => Set<Comment>();
+    public DbSet<SubtaskItem> Subtasks => Set<SubtaskItem>();
 
     public override int SaveChanges()
     {
@@ -174,6 +175,23 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(x => x.Author)
                 .WithMany(x => x.Comments)
                 .HasForeignKey(x => x.AuthorId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<SubtaskItem>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Title)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            // Index hỗ trợ query subtask theo task + sắp theo Position (checklist)
+            entity.HasIndex(x => new { x.TaskId, x.Position });
+
+            entity.HasOne(x => x.Task)
+                .WithMany(x => x.Subtasks)
+                .HasForeignKey(x => x.TaskId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

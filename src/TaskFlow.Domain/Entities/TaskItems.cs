@@ -30,4 +30,6 @@ public class TaskItem : AuditableEntity
 
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 
+    public ICollection<SubtaskItem> Subtasks { get; set; } = new List<SubtaskItem>();
+
 }

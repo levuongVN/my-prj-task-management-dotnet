@@ -28,6 +28,7 @@ public static class DependencyInjection
         services.AddScoped<IMeetingService, MeetingService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<ICommentService, CommentService>();
+        services.AddScoped<ISubtaskService, SubtaskService>();
         return services;
     }
 }

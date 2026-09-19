@@ -150,6 +150,15 @@ public class TaskService(
 
     private static TaskResponse Map(TaskItem task)
     {
+        var activeSubtasks =
+            task.Subtasks
+                .Where(s => !s.IsDeleted)
+                .OrderBy(s => s.Position)
+                .ToList();
+
+        var completedSubtasks =
+            activeSubtasks.Count(s => s.IsCompleted);
+
         return new TaskResponse
         {
             Id = task.Id,
@@ -162,7 +171,27 @@ public class TaskService(
             Position = task.Position,
             ProjectId = task.ProjectId,
             CreatedAt = task.CreatedAt,
-            UpdatedAt = task.UpdatedAt
+            UpdatedAt = task.UpdatedAt,
+            Subtasks = activeSubtasks.Select(MapSubtask).ToList(),
+            TotalSubtasks = activeSubtasks.Count,
+            CompletedSubtasks = completedSubtasks,
+            ProgressPercent = activeSubtasks.Count == 0
+                ? 0
+                : (int)Math.Round(100.0 * completedSubtasks / activeSubtasks.Count)
+        };
+    }
+
+    private static SubtaskResponse MapSubtask(SubtaskItem subtask)
+    {
+        return new SubtaskResponse
+        {
+            Id = subtask.Id,
+            TaskId = subtask.TaskId,
+            Title = subtask.Title,
+            IsCompleted = subtask.IsCompleted,
+            Position = subtask.Position,
+            CreatedAt = subtask.CreatedAt,
+            UpdatedAt = subtask.UpdatedAt
         };
     }
 

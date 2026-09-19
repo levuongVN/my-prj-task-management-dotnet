@@ -18,6 +18,7 @@ public class TaskRepository(
     )
     {
         return await _context.Tasks
+            .Include(x => x.Subtasks)
             .FirstOrDefaultAsync(x =>
                 x.Id == id &&
                 x.UserId == userId && x.IsDeleted == false
@@ -35,6 +36,7 @@ public class TaskRepository(
                 x.ProjectId == projectId &&
                 x.UserId == userId && x.IsDeleted == false
             )
+            .Include(x => x.Subtasks)
             .OrderBy(x => x.Position)
             .ToListAsync();
     }
@@ -73,6 +75,7 @@ public class TaskRepository(
         return await _context.Tasks
             .Where(x => x.UserId == userId && x.IsDeleted == false)
             .Include(x => x.Project)
+            .Include(x => x.Subtasks)
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
     }
