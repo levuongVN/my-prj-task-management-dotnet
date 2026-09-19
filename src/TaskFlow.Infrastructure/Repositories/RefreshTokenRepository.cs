@@ -48,6 +48,18 @@ public class RefreshTokenRepository : IRefreshTokenRepository
         return await _context.UserDevices.CountAsync(d => d.UserId == userId && d.IsActive);
     }
 
+    public async Task RevokeByUserAsync(Guid userId)
+    {
+        var tokens = await _context.RefreshTokens
+            .Where(t => t.UserId == userId && !t.IsRevoked)
+            .ToListAsync();
+
+        foreach (var token in tokens)
+        {
+            token.IsRevoked = true;
+        }
+    }
+
     public async Task SaveChangesAsync()
     {
         await _context.SaveChangesAsync();

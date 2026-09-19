@@ -119,7 +119,11 @@ public static class DependencyInjection
         services.AddScoped<IMeetingRepository, MeetingRepository>();
         services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<ISubtaskRepository, SubtaskRepository>();
+        services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
         services.AddScoped<IFileStorageService, SupabaseStorageService>();
+
+        services.Configure<SmtpOptions>(configuration.GetSection("Smtp"));
+        services.AddScoped<IEmailSender, SmtpEmailSender>();
 
         // OAuth providers: Google validate ID token, GitHub dùng typed HttpClient
         services.AddHttpClient<IGitHubAuthProvider, GitHubAuthProvider>();

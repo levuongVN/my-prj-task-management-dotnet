@@ -22,6 +22,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserDevice> UserDevices => Set<UserDevice>();
     public DbSet<Comment> Comments => Set<Comment>();
     public DbSet<SubtaskItem> Subtasks => Set<SubtaskItem>();
+    public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
 
     public override int SaveChanges()
     {
@@ -192,6 +193,24 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(x => x.Task)
                 .WithMany(x => x.Subtasks)
                 .HasForeignKey(x => x.TaskId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PasswordResetToken>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            // Lookup hash token khi reset password: unique index giúp query O(1)
+            entity.Property(x => x.TokenHash)
+                .IsRequired()
+                .HasMaxLength(128);
+
+            entity.HasIndex(x => x.TokenHash)
+                .IsUnique();
+
+            entity.HasOne(x => x.User)
+                .WithMany(x => x.PasswordResetTokens)
+                .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
     }

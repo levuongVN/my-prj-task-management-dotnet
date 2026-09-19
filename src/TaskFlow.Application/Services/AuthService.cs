@@ -1,5 +1,7 @@
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Emails;
 using TaskFlow.Application.Features.Auth.DTOs;
 using TaskFlow.Application.Features.Auth.Interfaces;
 using TaskFlow.Application.Interfaces;
@@ -13,15 +15,24 @@ public class AuthService(
     IRefreshTokenRepository refreshTokenRepository,
     IDeviceService deviceService,
     IGoogleAuthProvider googleAuthProvider,
-    IGitHubAuthProvider gitHubAuthProvider
+    IGitHubAuthProvider gitHubAuthProvider,
+    IPasswordResetTokenRepository passwordResetTokenRepository,
+    IEmailSender emailSender,
+    IConfiguration configuration
 ) : IAuthService
 {
+    // Thời gian sống của link reset password trong email (phút)
+    private const int ResetTokenExpiryMinutes = 15;
+
     private readonly IJwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
     private readonly IUserRepository _userRepository = userRepository;
     private readonly IRefreshTokenRepository _refreshTokenRepository = refreshTokenRepository;
     private readonly IDeviceService _deviceService = deviceService;
     private readonly IGoogleAuthProvider _googleAuthProvider = googleAuthProvider;
     private readonly IGitHubAuthProvider _gitHubAuthProvider = gitHubAuthProvider;
+    private readonly IPasswordResetTokenRepository _passwordResetTokenRepository = passwordResetTokenRepository;
+    private readonly IEmailSender _emailSender = emailSender;
+    private readonly IConfiguration _configuration = configuration;
 
     public async Task<AuthResponse> Login(
     LoginRequest request,
@@ -336,5 +347,96 @@ public class AuthService(
 
         storedToken.IsRevoked = true;
         await _refreshTokenRepository.SaveChangesAsync();
+    }
+
+    // FLOW FORGOT PASSWORD:
+    //   user quên mật khẩu -> POST /auth/forgot-password { email }
+    //   -> BE tạo token random 32 bytes (raw chỉ nằm trong link email, DB giữ hash)
+    //   -> gửi email HTML chứa link {FrontendUrl}/reset-password?token=xxx
+    // API luôn trả 200 kể cả email không tồn tại -> attacker không dò được
+    // account nào đang có trong hệ thống qua endpoint này (user enumeration)
+    public async Task ForgotPassword(ForgotPasswordRequest request)
+    {
+        var user = await _userRepository.GetByEmailAsync(request.Email);
+
+        if (user == null)
+        {
+            return;
+        }
+
+        // Yêu cầu gửi lại (= invalidate token cũ) chỉ token mới nhất còn hiệu lực
+        await _passwordResetTokenRepository.InvalidateUserTokensAsync(user.Id);
+
+        var rawToken = GenerateRawResetToken();
+
+        var passwordResetToken = new PasswordResetToken
+        {
+            UserId = user.Id,
+            TokenHash = ComputeTokenHash(rawToken),
+            ExpiresAt = DateTime.UtcNow.AddMinutes(ResetTokenExpiryMinutes)
+        };
+
+        await _passwordResetTokenRepository.AddAsync(passwordResetToken);
+        await _passwordResetTokenRepository.SaveChangesAsync();
+
+        var resetLink = $"{_configuration["App:FrontendUrl"]}/reset-password?token={rawToken}";
+
+        await _emailSender.SendAsync(
+            user.Email,
+            AuthEmailTemplates.ForgotPasswordSubject(),
+            AuthEmailTemplates.ForgotPasswordHtml(user.FullName, resetLink, ResetTokenExpiryMinutes)
+        );
+    }
+
+    // FLOW RESET PASSWORD:
+    //   user mở link trong email -> FE cho nhập mật khẩu mới
+    //   -> POST /auth/reset-password { token, newPassword }
+    //   -> BE hash token trong link, truy ngược PasswordResetToken trong DB
+    //   -> verify (chưa dùng, chưa hết hạn) -> đổi password + chết hết session cũ
+    public async Task ResetPassword(ResetPasswordRequest request)
+    {
+        var resetToken = await _passwordResetTokenRepository.GetByTokenHashAsync(
+            ComputeTokenHash(request.Token)
+        );
+
+        var isInvalid =
+            resetToken == null ||
+            resetToken.UsedAt != null ||
+            resetToken.ExpiresAt < DateTime.UtcNow;
+
+        if (isInvalid)
+        {
+            throw new Exception("Reset token is invalid or expired");
+        }
+
+        var user = resetToken!.User;
+
+        user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+
+        resetToken.UsedAt = DateTime.UtcNow;
+
+        // Password mới -> mọi session đang giữ refresh token đều bị đóng,
+        // access token đang live chỉ còn tối đa 10' (Jwt:ExpiryMinutes) rồi tự chết
+        await _refreshTokenRepository.RevokeByUserAsync(user.Id);
+
+        await _passwordResetTokenRepository.SaveChangesAsync();
+    }
+
+    private static string GenerateRawResetToken()
+    {
+        // 32 bytes ngẫu nhiên từ CSPRNG -> base64url an toàn trong URL query,
+        // khoảng entropy 256-bit -> không thể đoán/thu được bằng brute force
+        return System.Buffers.Text.Base64Url.EncodeToString(
+            System.Security.Cryptography.RandomNumberGenerator.GetBytes(32)
+        );
+    }
+
+    private static string ComputeTokenHash(string rawToken)
+    {
+        return Convert.ToHexString(
+            System.Security.Cryptography.SHA256.HashData(
+                System.Text.Encoding.UTF8.GetBytes(rawToken)
+            )
+        );
     }
 }

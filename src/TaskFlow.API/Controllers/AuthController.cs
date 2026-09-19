@@ -127,6 +127,54 @@ public class AuthController : ControllerBase
         }
     }
 
+    // Anonymous như login: user CHƯA có session khi quên mật khẩu.
+    // Luôn trả message chung kể cả email không tồn tại - không dò được account
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword(
+        [FromBody] ForgotPasswordRequest request
+    )
+    {
+        try
+        {
+            await _authService.ForgotPassword(request);
+
+            return Ok(new
+            {
+                message = "If that email exists, a password reset link has been sent"
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
+            });
+        }
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword(
+        [FromBody] ResetPasswordRequest request
+    )
+    {
+        try
+        {
+            await _authService.ResetPassword(request);
+
+            return Ok(new
+            {
+                message = "Password has been reset successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
+            });
+        }
+    }
+
     // Các luồng login dùng chung xử lý lỗi: exception -> 400 { message }
     // (giữ đúng format error response của endpoints login cũ)
     private async Task<IActionResult> ExecuteAuthAction(Func<Task<AuthResponse>> action)

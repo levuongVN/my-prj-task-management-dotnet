@@ -10,4 +10,6 @@ public interface IAuthService
     Task<AuthResponse> LoginWithGitHub(GithubLoginRequest request, string? ipAddress = null, string? deviceType = null, string? deviceName = null);
     Task<AuthResponse> RefreshToken(RefreshTokenRequest request);
     Task Logout(LogoutRequest request);
+    Task ForgotPassword(ForgotPasswordRequest request);
+    Task ResetPassword(ResetPasswordRequest request);
 }
