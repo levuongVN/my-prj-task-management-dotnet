@@ -19,6 +19,7 @@ public class TaskRepository(
     {
         return await _context.Tasks
             .Include(x => x.Subtasks)
+            .Include(x => x.Labels)
             .FirstOrDefaultAsync(x =>
                 x.Id == id &&
                 x.UserId == userId && x.IsDeleted == false
@@ -37,6 +38,7 @@ public class TaskRepository(
                 x.UserId == userId && x.IsDeleted == false
             )
             .Include(x => x.Subtasks)
+            .Include(x => x.Labels)
             .OrderBy(x => x.Position)
             .ToListAsync();
     }
@@ -85,18 +87,27 @@ public class TaskRepository(
     public async Task<(List<TaskItem> Items, int TotalCount)> GetPagedByUserIdAsync(
         Guid userId,
         int page,
-        int pageSize
+        int pageSize,
+        Guid? labelId = null
     )
     {
         var query = _context.Tasks
-            .Where(x => x.UserId == userId && !x.IsDeleted)
-            .OrderByDescending(x => x.CreatedAt);
+            .Where(x => x.UserId == userId && !x.IsDeleted);
+
+        // Filter theo label: dùng subquery trên navigation (không cần Include trước)
+        if (labelId.HasValue)
+        {
+            query = query.Where(x => x.Labels.Any(l => l.Id == labelId.Value));
+        }
+
+        query = query.OrderByDescending(x => x.CreatedAt);
 
         var totalCount = await query.CountAsync();
 
         var items = await query
             .Include(x => x.Project)
             .Include(x => x.Subtasks)
+            .Include(x => x.Labels)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -125,6 +136,7 @@ public class TaskRepository(
 
         var items = await query
             .Include(x => x.Subtasks)
+            .Include(x => x.Labels)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

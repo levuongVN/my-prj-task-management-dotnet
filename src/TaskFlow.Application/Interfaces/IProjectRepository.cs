@@ -16,7 +16,8 @@ public interface IProjectRepository
     Task<(List<Project> Items, int TotalCount)> GetPagedByUserAsync(
         Guid userId,
         int page,
-        int pageSize
+        int pageSize,
+        Guid? labelId = null
     );
 
     Task AddAsync(

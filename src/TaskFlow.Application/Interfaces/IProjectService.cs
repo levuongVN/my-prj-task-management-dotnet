@@ -12,7 +12,8 @@ public interface IProjectService
     Task<PagedResult<ProjectResponse>> GetPagedAsync(
         Guid userId,
         int page,
-        int pageSize
+        int pageSize,
+        Guid? labelId = null
     );
 
     Task<ProjectResponse?> GetByIdAsync(

@@ -13,6 +13,7 @@ public class ProjectRepository(ApplicationDbContext context) : IProjectRepositor
     {
         return await _context.Projects
             .Include(x => x.Tasks.Where(t => !t.IsDeleted))
+            .Include(x => x.Labels)
             .FirstOrDefaultAsync(x =>
                 x.Id == projectId &&
                 x.UserId == userId &&
@@ -32,17 +33,25 @@ public class ProjectRepository(ApplicationDbContext context) : IProjectRepositor
     public async Task<(List<Project> Items, int TotalCount)> GetPagedByUserAsync(
         Guid userId,
         int page,
-        int pageSize
+        int pageSize,
+        Guid? labelId = null
     )
     {
         var query = _context.Projects
-            .Where(x => x.UserId == userId && !x.IsDeleted)
-            .OrderByDescending(x => x.CreatedAt);
+            .Where(x => x.UserId == userId && !x.IsDeleted);
+
+        if (labelId.HasValue)
+        {
+            query = query.Where(x => x.Labels.Any(l => l.Id == labelId.Value));
+        }
+
+        query = query.OrderByDescending(x => x.CreatedAt);
 
         var totalCount = await query.CountAsync();
 
         var items = await query
             .Include(x => x.Tasks.Where(t => !t.IsDeleted))
+            .Include(x => x.Labels)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();

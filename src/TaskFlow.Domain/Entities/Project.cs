@@ -20,4 +20,5 @@ public class Project : AuditableEntity
 
     public ICollection<TaskItem> Tasks { get; set; } = [];
     public ICollection<Meeting> Meetings { get; set; } = [];
+    public ICollection<Label> Labels { get; set; } = [];
 }

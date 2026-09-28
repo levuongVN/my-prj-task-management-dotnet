@@ -93,17 +93,20 @@ public class TasksController(ITaskService taskService) : ControllerBase{
         return NoContent();
     }
 
+    // ?labelId= optional - server-side filter theo label, totalCount đúng cho pagination
     [HttpGet]
     public async Task<IActionResult> GetAll(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 20
+        [FromQuery] int pageSize = 20,
+        [FromQuery] Guid? labelId = null
     )
     {
         var tasks =
             await _taskService.GetPagedByUserAsync(
                 CurrentUserId,
                 page,
-                pageSize
+                pageSize,
+                labelId
             );
 
         return Ok(tasks);

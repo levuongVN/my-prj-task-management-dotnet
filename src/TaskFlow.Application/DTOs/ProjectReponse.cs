@@ -1,3 +1,4 @@
+using TaskFlow.Application.DTOs.Labels;
 using TaskFlow.Domain.Enums;
 
 namespace TaskFlow.Application.DTOs.Projects;
@@ -17,4 +18,6 @@ public class ProjectResponse
     public ProjectStatus Status { get; set; }
 
     public DateTime CreatedAt { get; set; }
+
+    public List<LabelDto> Labels { get; set; } = new();
 }

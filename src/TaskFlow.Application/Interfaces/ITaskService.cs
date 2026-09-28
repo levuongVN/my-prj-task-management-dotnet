@@ -13,7 +13,8 @@ public interface ITaskService
     Task<PagedResult<TaskResponse>> GetPagedByUserAsync(
         Guid userId,
         int page,
-        int pageSize
+        int pageSize,
+        Guid? labelId = null
     );
 
     Task<PagedResult<TaskResponse>> GetPagedProjectTasksAsync(

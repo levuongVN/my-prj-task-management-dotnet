@@ -32,4 +32,6 @@ public class TaskItem : AuditableEntity
 
     public ICollection<SubtaskItem> Subtasks { get; set; } = new List<SubtaskItem>();
 
+    public ICollection<Label> Labels { get; set; } = new List<Label>();
+
 }

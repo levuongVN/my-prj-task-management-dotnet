@@ -11,4 +11,7 @@ public class CreateOrUpdateProjectRequest
     public DateTime Due { get; set; }
 
     public ProjectStatus Status { get; set; }
+
+    // null = giữ nguyên, [] = gỡ hết, [ids] = replace
+    public List<Guid>? LabelIds { get; set; }
 }

@@ -24,6 +24,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<SubtaskItem> Subtasks => Set<SubtaskItem>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
+    public DbSet<Label> Labels => Set<Label>();
 
     public override int SaveChanges()
     {
@@ -214,6 +215,7 @@ public class ApplicationDbContext : DbContext
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
         modelBuilder.Entity<EmailVerificationToken>(entity =>
         {
             entity.HasKey(x => x.Id);
@@ -229,6 +231,39 @@ public class ApplicationDbContext : DbContext
                 .WithMany(x => x.EmailVerificationTokens)
                 .HasForeignKey(x => x.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<Label>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Name)
+                .IsRequired()
+                .HasMaxLength(50);
+
+            entity.Property(x => x.Color)
+                .HasMaxLength(9);
+
+            // 1 user không có 2 label trùng tên
+            entity.HasIndex(x => new { x.UserId, x.Name })
+                .IsUnique();
+        });
+
+        // Many-to-many: join table tên rõ ràng + index LabelId cho filter ?labelId
+        modelBuilder.Entity<TaskItem>(entity =>
+        {
+            entity.HasMany(x => x.Labels)
+                .WithMany(x => x.Tasks)
+                .UsingEntity("TaskLabels",
+                    j => j.HasIndex("LabelsId").HasDatabaseName("IX_TaskLabels_LabelsId"));
+        });
+
+        modelBuilder.Entity<Project>(entity =>
+        {
+            entity.HasMany(x => x.Labels)
+                .WithMany(x => x.Projects)
+                .UsingEntity("ProjectLabels",
+                    j => j.HasIndex("LabelsId").HasDatabaseName("IX_ProjectLabels_LabelsId"));
         });
     }
 }

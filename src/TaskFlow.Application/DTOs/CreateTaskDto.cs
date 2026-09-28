@@ -15,4 +15,7 @@ public class CreateOrUpdateTaskRequest
     public TaskPriority Priority { get; set; } = TaskPriority.Medium;
 
     public DateTime? Deadline { get; set; }
+
+    // null = không đụng labels (update), [] = gỡ hết, [ids] = replace toàn bộ
+    public List<Guid>? LabelIds { get; set; }
 }

@@ -29,6 +29,7 @@ public static class DependencyInjection
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<ISubtaskService, SubtaskService>();
+        services.AddScoped<ILabelService, LabelService>();
         return services;
     }
 }

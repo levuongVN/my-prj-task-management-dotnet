@@ -1,4 +1,5 @@
 using TaskFlow.Application.Common;
+using TaskFlow.Application.DTOs.Labels;
 using TaskFlow.Application.Features.Tasks.DTOs;
 using TaskFlow.Application.Features.Tasks.Interfaces;
 using TaskFlow.Application.Interfaces;
@@ -8,7 +9,8 @@ namespace TaskFlow.Application.Features.Tasks.Services;
 
 public class TaskService(
     ITaskRepository taskRepository,
-    IProjectRepository projectRepository
+    IProjectRepository projectRepository,
+    ILabelRepository labelRepository
 ) : ITaskService
 {
     private readonly ITaskRepository _taskRepository =
@@ -16,6 +18,8 @@ public class TaskService(
 
     private readonly IProjectRepository _projectRepository =
         projectRepository;
+
+    private readonly ILabelRepository _labelRepository = labelRepository;
 
     public async Task<List<TaskResponse>>
         GetProjectTasksAsync(
@@ -80,8 +84,14 @@ public class TaskService(
             Priority = request.Priority,
             Deadline = request.Deadline,
             UserId = userId,
-            ProjectId = request?.ProjectId
+            ProjectId = request.ProjectId
         };
+
+        // Create: labelIds được gửi -> gán ngay (null/[] = không có label)
+        if (request.LabelIds != null)
+        {
+            task.Labels = await ResolveLabelsAsync(userId, request.LabelIds);
+        }
 
         await _taskRepository.AddAsync(task);
         await _taskRepository.SaveChangesAsync();
@@ -117,6 +127,12 @@ public class TaskService(
         task.ProjectId = request.ProjectId;
         task.UpdatedAt = DateTime.UtcNow;
 
+        // labelIds == null -> client không đụng đến labels, giữ nguyên quan hệ
+        if (request.LabelIds != null)
+        {
+            task.Labels = await ResolveLabelsAsync(userId, request.LabelIds);
+        }
+
         _taskRepository.Update(task);
 
         await _taskRepository.SaveChangesAsync();
@@ -149,6 +165,27 @@ public class TaskService(
             .SaveChangesAsync();
     }
 
+    // Gán labels vào task: verify toàn bộ id thuộc user trước khi gán
+    // (id của user khác/giả mạo -> IllegalArgumentException -> middleware trả 400)
+    private async Task<List<Label>> ResolveLabelsAsync(Guid userId, List<Guid> labelIds)
+    {
+        var ids = labelIds.Distinct().ToList();
+
+        if (ids.Count == 0)
+        {
+            return [];
+        }
+
+        var labels = await _labelRepository.GetByIdsAsync(userId, ids);
+
+        if (labels.Count != ids.Count)
+        {
+            throw new ArgumentException("One or more labels not found");
+        }
+
+        return labels;
+    }
+
     private static TaskResponse Map(TaskItem task)
     {
         var activeSubtasks =
@@ -174,6 +211,14 @@ public class TaskService(
             CreatedAt = task.CreatedAt,
             UpdatedAt = task.UpdatedAt,
             Subtasks = activeSubtasks.Select(MapSubtask).ToList(),
+            Labels = task.Labels
+                .Select(l => new LabelDto
+                {
+                    Id = l.Id,
+                    Name = l.Name,
+                    Color = l.Color
+                })
+                .ToList(),
             TotalSubtasks = activeSubtasks.Count,
             CompletedSubtasks = completedSubtasks,
             ProgressPercent = activeSubtasks.Count == 0
@@ -205,7 +250,8 @@ public class TaskService(
     public async Task<PagedResult<TaskResponse>> GetPagedByUserAsync(
         Guid userId,
         int page,
-        int pageSize
+        int pageSize,
+        Guid? labelId = null
     )
     {
         (page, pageSize) = PagedResult<TaskResponse>.Normalize(page, pageSize);
@@ -213,7 +259,8 @@ public class TaskService(
         var (tasks, totalCount) = await _taskRepository.GetPagedByUserIdAsync(
             userId,
             page,
-            pageSize
+            pageSize,
+            labelId
         );
 
         return new PagedResult<TaskResponse>

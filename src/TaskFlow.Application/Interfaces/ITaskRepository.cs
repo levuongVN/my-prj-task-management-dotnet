@@ -10,7 +10,8 @@ public interface ITaskRepository
     Task<(List<TaskItem> Items, int TotalCount)> GetPagedByUserIdAsync(
         Guid userId,
         int page,
-        int pageSize
+        int pageSize,
+        Guid? labelId = null
     );
     Task<(List<TaskItem> Items, int TotalCount)> GetPagedByProjectIdAsync(
         Guid projectId,

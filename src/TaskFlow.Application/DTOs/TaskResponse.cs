@@ -1,3 +1,5 @@
+using TaskFlow.Application.DTOs.Labels;
+
 namespace TaskFlow.Application.Features.Tasks.DTOs;
 
 public class TaskResponse
@@ -25,6 +27,8 @@ public class TaskResponse
     public DateTime UpdatedAt { get; set; }
 
     public List<SubtaskResponse> Subtasks { get; set; } = new();
+
+    public List<LabelDto> Labels { get; set; } = new();
 
     public int TotalSubtasks { get; set; }
 
