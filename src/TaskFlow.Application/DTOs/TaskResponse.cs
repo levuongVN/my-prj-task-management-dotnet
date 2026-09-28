@@ -18,6 +18,8 @@ public class TaskResponse
 
     public int Position { get; set; }
 
+    public int RecurrenceType { get; set; }
+
     public Guid? ProjectId { get; set; }
 
     public Guid UserId { get; set; }

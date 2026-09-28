@@ -84,7 +84,8 @@ public class TaskService(
             Priority = request.Priority,
             Deadline = request.Deadline,
             UserId = userId,
-            ProjectId = request.ProjectId
+            ProjectId = request.ProjectId,
+            RecurrenceType = request.RecurrenceType ?? Domain.Enums.RecurrenceType.None
         };
 
         // Create: labelIds được gửi -> gán ngay (null/[] = không có label)
@@ -119,6 +120,11 @@ public class TaskService(
             );
         }
 
+        // oldStatus phải chụp TRƯỚC khi override bởi request
+        // - điều kiện sinh recurring task là NHÁT chuyển từ chưa-Done sang Done;
+        // nếu không chụp, FE tick Done 2 lần sẽ sinh trùng chuỗi
+        var oldStatus = task.Status;
+
         task.Title = request.Title;
         task.Description = request.Description;
         task.Status = request.Status;
@@ -126,6 +132,12 @@ public class TaskService(
         task.Deadline = request.Deadline;
         task.ProjectId = request.ProjectId;
         task.UpdatedAt = DateTime.UtcNow;
+
+        // recurrenceType == null -> client không đụng, giữ nguyên quy tắc lặp
+        if (request.RecurrenceType != null)
+        {
+            task.RecurrenceType = request.RecurrenceType.Value;
+        }
 
         // labelIds == null -> client không đụng đến labels, giữ nguyên quan hệ
         if (request.LabelIds != null)
@@ -137,7 +149,68 @@ public class TaskService(
 
         await _taskRepository.SaveChangesAsync();
 
+        // Hoàn thành task recurring -> sinh luôn task kế của chuỗi (commit riêng);
+        // giờ FE tick Done một task 5/10 là tháng sau đã có sẵn task 5/11 sẵn sàng
+        if (oldStatus != Domain.Enums.TaskStatus.Done &&
+            task.Status == Domain.Enums.TaskStatus.Done &&
+            task.RecurrenceType != Domain.Enums.RecurrenceType.None)
+        {
+            await CreateNextRecurrenceAsync(task);
+        }
+
         return Map(task);
+    }
+
+    // Sinh task kế của chuỗi recurring: clone nội dung + labels + checklist (reset
+    // hết checkbox), deadline đẩy sang kỳ kế, status Todo, position cuối board
+    private async Task CreateNextRecurrenceAsync(TaskItem completed)
+    {
+        var clone = new TaskItem
+        {
+            Id = Guid.NewGuid(),
+            Title = completed.Title,
+            Description = completed.Description,
+            Status = Domain.Enums.TaskStatus.Todo,
+            Priority = completed.Priority,
+            UserId = completed.UserId,
+            ProjectId = completed.ProjectId,
+            Deadline = NextDeadline(completed.Deadline, completed.RecurrenceType),
+            RecurrenceType = completed.RecurrenceType,
+            Position = await _taskRepository.GetMaxPositionAsync(
+                completed.UserId,
+                completed.ProjectId
+            ) + 1
+        };
+
+        // M2M: gán lại CÙNG label entity - EF tự thêm join rows cho task mới
+        clone.Labels = completed.Labels.ToList();
+
+        foreach (var subtask in completed.Subtasks.Where(s => !s.IsDeleted).OrderBy(s => s.Position))
+        {
+            clone.Subtasks.Add(new SubtaskItem
+            {
+                Title = subtask.Title,
+                Position = subtask.Position,
+                IsCompleted = false
+            });
+        }
+
+        await _taskRepository.AddAsync(clone);
+        await _taskRepository.SaveChangesAsync();
+    }
+
+    private static DateTime NextDeadline(DateTime? current, Domain.Enums.RecurrenceType type)
+    {
+        // Không deadline gốc -> mốc là BÂY GIỜ + kỳ (task không deadline recurring ít dùng)
+        var baseDate = current ?? DateTime.UtcNow;
+
+        return type switch
+        {
+            Domain.Enums.RecurrenceType.Daily => baseDate.AddDays(1),
+            Domain.Enums.RecurrenceType.Weekly => baseDate.AddDays(7),
+            Domain.Enums.RecurrenceType.Monthly => baseDate.AddMonths(1),
+            _ => baseDate
+        };
     }
 
     public async Task DeleteAsync(
@@ -207,6 +280,7 @@ public class TaskService(
             Deadline = task.Deadline,
             UserId = task.UserId,
             Position = task.Position,
+            RecurrenceType = (int)task.RecurrenceType,
             ProjectId = task.ProjectId,
             CreatedAt = task.CreatedAt,
             UpdatedAt = task.UpdatedAt,

@@ -21,6 +21,10 @@ public class TaskItem : AuditableEntity
 
     public int Position { get; set; }
 
+    // None = task thường. Có giá trị -> khi task được hoàn thành (status nhảy sang
+    // Done) BE tự sinh task kế của chuỗi (clone + deadline đẩy sang kỳ tiếp)
+    public RecurrenceType RecurrenceType { get; set; } = RecurrenceType.None;
+
     public Guid UserId { get; set; }
 
     public bool IsDeleted { get; set; } = false;

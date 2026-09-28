@@ -18,4 +18,7 @@ public class CreateOrUpdateTaskRequest
 
     // null = không đụng labels (update), [] = gỡ hết, [ids] = replace toàn bộ
     public List<Guid>? LabelIds { get; set; }
+
+    // null = giữ nguyên recurrence hiện tại (update), 0 = tắt chuỗi, 1-3 = set
+    public RecurrenceType? RecurrenceType { get; set; }
 }

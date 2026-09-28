@@ -117,6 +117,22 @@ public class TaskRepository(
 
     // Task trong project sắp theo Position (thứ tự kỳ vọng của FE kanban/board),
     // khác list "all tasks" sắp theo CreatedAt
+    // Position lớn nhất của task sống trên cùng scope để recurring task mới
+    // chèn vào DUỐI bảng: project task -> ضمن project đó; task cá nhân -> toàn bộ
+    public async Task<int> GetMaxPositionAsync(Guid userId, Guid? projectId)
+    {
+        var max = await _context.Tasks
+            .Where(x =>
+                x.UserId == userId &&
+                !x.IsDeleted &&
+                (projectId == null
+                    ? x.ProjectId == null
+                    : x.ProjectId == projectId))
+            .MaxAsync(x => (int?)x.Position);
+
+        return max ?? -1;
+    }
+
     public async Task<(List<TaskItem> Items, int TotalCount)> GetPagedByProjectIdAsync(
         Guid projectId,
         Guid userId,

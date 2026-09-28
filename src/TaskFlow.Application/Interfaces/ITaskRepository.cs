@@ -19,6 +19,10 @@ public interface ITaskRepository
         int page,
         int pageSize
     );
+
+    // Position lớn nhất của task sống trong cùng scope (project nếu có, không thì
+    // task cá nhân) - dùng để sinh recurring task ở DUỐI bảng/kanban
+    Task<int> GetMaxPositionAsync(Guid userId, Guid? projectId);
     Task<TaskItem?> GetByIdAsync(
         Guid id,
         Guid userId
