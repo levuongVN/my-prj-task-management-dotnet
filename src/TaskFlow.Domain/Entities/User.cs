@@ -12,6 +12,10 @@ public class User : AuditableEntity
 
     public string? AvatarPath { get; set; }
 
+    // null = email chưa verify (register bằng password), có giá trị = đã verify
+    // (click link trong email, hoặc OAuth - email đã được provider verify sẵn)
+    public DateTime? EmailVerifiedAt { get; set; }
+
     // Navigation Properties
     public ICollection<TaskItem> Tasks { get; set; } = new List<TaskItem>();
     public ICollection<RefreshToken> RefreshTokens { get; set; } = new List<RefreshToken>();
@@ -19,4 +23,5 @@ public class User : AuditableEntity
     public ICollection<UserDevice> Devices { get; set; } = new List<UserDevice>();
     public ICollection<Comment> Comments { get; set; } = new List<Comment>();
     public ICollection<PasswordResetToken> PasswordResetTokens { get; set; } = new List<PasswordResetToken>();
+    public ICollection<EmailVerificationToken> EmailVerificationTokens { get; set; } = new List<EmailVerificationToken>();
 }

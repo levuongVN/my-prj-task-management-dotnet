@@ -5,6 +5,7 @@ namespace TaskFlow.Application.Features.Auth.Interfaces;
 
 public interface IAuthService
 {
+    Task<AuthResponse> Register(RegisterRequest request, string? ipAddress = null, string? deviceType = null, string? deviceName = null);
     Task<AuthResponse> Login(LoginRequest request, string? ipAddress = null, string? deviceType = null, string? deviceName = null);
     Task<AuthResponse> LoginWithGoogle(GoogleLoginRequest request, string? ipAddress = null, string? deviceType = null, string? deviceName = null);
     Task<AuthResponse> LoginWithGitHub(GithubLoginRequest request, string? ipAddress = null, string? deviceType = null, string? deviceName = null);
@@ -12,4 +13,6 @@ public interface IAuthService
     Task Logout(LogoutRequest request);
     Task ForgotPassword(ForgotPasswordRequest request);
     Task ResetPassword(ResetPasswordRequest request);
+    Task VerifyEmail(VerifyEmailRequest request);
+    Task ResendVerificationEmail(ResendVerificationRequest request);
 }

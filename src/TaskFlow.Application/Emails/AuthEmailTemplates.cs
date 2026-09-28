@@ -9,6 +9,53 @@ public static class AuthEmailTemplates
         return "Reset your TaskFlow password";
     }
 
+    public static string VerifyEmailSubject()
+    {
+        return "Verify your email - TaskFlow";
+    }
+
+    // Link trỏ về trang /verify-email?token=... của FE - token thô chỉ nằm trong email
+    public static string VerifyEmailHtml(
+        string fullName,
+        string verificationLink
+    )
+    {
+        var name = WebUtility.HtmlEncode(fullName);
+
+        return $@"
+<!DOCTYPE html>
+<html>
+  <body style=""margin:0;padding:0;background-color:#f4f5f7;font-family:Arial,Helvetica,sans-serif;"">
+    <div style=""max-width:560px;margin:0 auto;padding:32px 24px;"">
+      <h2 style=""color:#1a2233;margin:0 0 24px;"">TaskFlow</h2>
+      <div style=""background-color:#ffffff;border-radius:8px;padding:32px;"">
+        <h3 style=""margin:0 0 16px;color:#1a2233;"">Hi {name},</h3>
+        <p style=""color:#555;line-height:1.6;margin:0 0 16px;"">
+          Welcome to TaskFlow! Please confirm this email address is yours by clicking the button below.
+        </p>
+        <div style=""text-align:center;margin:32px 0;"">
+          <a href=""{verificationLink}""
+             style=""background-color:#2563eb;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:6px;display:inline-block;font-weight:bold;"">
+             Verify Email
+          </a>
+        </div>
+        <p style=""color:#8a93a2;font-size:12px;line-height:1.6;margin:0;"">
+          If the button does not work, paste this link into your browser:<br/>
+          <span style=""word-break:break-all;"">{verificationLink}</span>
+        </p>
+        <p style=""color:#8a93a2;font-size:12px;line-height:1.6;margin:24px 0 0;"">
+          You can still use the app without verifying, but verifying protects your account
+          and lets us send you important notifications.
+        </p>
+      </div>
+      <p style=""color:#b5bcc8;font-size:12px;text-align:center;margin:24px 0 0;"">
+        &copy; TaskFlow - This is an automated email, please do not reply.
+      </p>
+    </div>
+  </body>
+</html>";
+    }
+
     public static string ForgotPasswordHtml(
         string fullName,
         string resetLink,

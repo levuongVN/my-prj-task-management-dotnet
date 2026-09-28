@@ -72,6 +72,20 @@ public class AuthController : ControllerBase
     // anything - vai trò verify nằm ở GoogleAuthProvider/GitHubAuthProvider, controller
     // chỉ làm: nhận request -> thu thập metadata từ environment (IP/browser/device) -> ủy cho AuthService
 
+    [HttpPost("register")]
+    public async Task<IActionResult> Register(RegisterRequest request)
+    {
+        // Register cùng semantics login: đăng ký xong nhận ngay access + refresh token
+        return await ExecuteAuthAction(() =>
+            _authService.Register(
+                request,
+                HttpContext.Connection.RemoteIpAddress?.ToString(),
+                _detectionService.Device.Type.ToString(),
+                $"{_detectionService.Browser.Name} on {_detectionService.Platform.Name}"
+            )
+        );
+    }
+
     [HttpPost("google")]
     public async Task<IActionResult> LoginWithGoogle(GoogleLoginRequest request)
     {
@@ -164,6 +178,56 @@ public class AuthController : ControllerBase
             return Ok(new
             {
                 message = "Password has been reset successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
+            });
+        }
+    }
+
+    // Email verification là flow "soft": response giống nhau kể cả email nào
+    // (resend-verification bắt buộc luôn 200) - không cho dò email nào có account
+    [HttpPost("verify-email")]
+    public async Task<IActionResult> VerifyEmail(
+        [FromBody] VerifyEmailRequest request
+    )
+    {
+        try
+        {
+            await _authService.VerifyEmail(request);
+
+            return Ok(new
+            {
+                message = "Email verified successfully"
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                message = ex.Message
+            });
+        }
+    }
+
+    [HttpPost("resend-verification")]
+    public async Task<IActionResult> ResendVerification(
+        [FromBody] ResendVerificationRequest request
+    )
+    {
+        try
+        {
+            // Luôn trả message chung - nếu email chưa verify mail mới được gửi đi,
+            // nếu không thì im lặng như forgot-password (chống dò account)
+            await _authService.ResendVerificationEmail(request);
+
+            return Ok(new
+            {
+                message = "If the email needs verification, a new link has been sent"
             });
         }
         catch (Exception ex)

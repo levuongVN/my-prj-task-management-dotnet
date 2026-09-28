@@ -10,5 +10,8 @@ public class UserDto
 
     public string? AvatarUrl { get; set; }
 
+    // null = email chưa verify -> FE hiện banner hướng dẫn verify email
+    public DateTime? EmailVerifiedAt { get; set; }
+
     public DateTime? CreatedAt { get; set; }
 }

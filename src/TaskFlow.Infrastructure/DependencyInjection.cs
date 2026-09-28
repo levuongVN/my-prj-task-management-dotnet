@@ -120,6 +120,7 @@ public static class DependencyInjection
         services.AddScoped<ICommentRepository, CommentRepository>();
         services.AddScoped<ISubtaskRepository, SubtaskRepository>();
         services.AddScoped<IPasswordResetTokenRepository, PasswordResetTokenRepository>();
+        services.AddScoped<IEmailVerificationTokenRepository, EmailVerificationTokenRepository>();
         services.AddScoped<IFileStorageService, SupabaseStorageService>();
 
         services.Configure<SmtpOptions>(configuration.GetSection("Smtp"));

@@ -1,3 +1,6 @@
+using Microsoft.Extensions.Configuration;
+using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.Emails;
 using TaskFlow.Application.Features.Notifications.DTOs;
 using TaskFlow.Application.Interfaces;
 using TaskFlow.Domain.Entities;
@@ -9,13 +12,22 @@ public class NotificationService : INotificationService
 {
     private readonly INotificationRepository _notificationRepository;
     private readonly INotificationSender _notificationSender;
+    private readonly IEmailSender _emailSender;
+    private readonly IUserRepository _userRepository;
+    private readonly IConfiguration _configuration;
 
     public NotificationService(
         INotificationRepository notificationRepository,
-        INotificationSender notificationSender)
+        INotificationSender notificationSender,
+        IEmailSender emailSender,
+        IUserRepository userRepository,
+        IConfiguration configuration)
     {
         _notificationRepository = notificationRepository;
         _notificationSender = notificationSender;
+        _emailSender = emailSender;
+        _userRepository = userRepository;
+        _configuration = configuration;
     }
 
     public async Task<List<NotificationDto>> GetByUserIdAsync(Guid userId, int take = 50)
@@ -107,6 +119,34 @@ public class NotificationService : INotificationService
         if (ReferenceEquals(created, notification))
         {
             await _notificationSender.SendNotificationAsync(userId, created);
+
+            // Email chỉ gửi khi THẬT SỰ tạo notification mới: nhánh dedup (job chạy
+            // lại 10 phút sau trên cùng task) sẽ không rơi vào đây -> mỗi event
+            // chỉ nhận đúng 1 email, không spam hộp thư
+            try
+            {
+                var user = await _userRepository.GetByIdAsync(userId);
+
+                if (user != null)
+                {
+                    // Best-effort: SMTP chậm/hỏng không được phép làm chết job scan,
+                    // kênh realtime (SignalR) + bảng Notifications mới là nguồn chính
+                    await _emailSender.SendAsync(
+                        user.Email,
+                        NotificationEmailTemplates.Subject(created.Title),
+                        NotificationEmailTemplates.Html(
+                            user.FullName,
+                            created.Title,
+                            created.Message,
+                            _configuration["App:FrontendUrl"] ?? "http://localhost:5173"
+                        )
+                    );
+                }
+            }
+            catch
+            {
+                // Email chỉ là kênh phụ - bỏ qua lỗi, đẩy tiếp các notification còn lại
+            }
         }
 
         return ToDto(created);

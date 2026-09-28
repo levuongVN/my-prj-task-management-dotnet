@@ -17,12 +17,16 @@ public class AuthService(
     IGoogleAuthProvider googleAuthProvider,
     IGitHubAuthProvider gitHubAuthProvider,
     IPasswordResetTokenRepository passwordResetTokenRepository,
+    IEmailVerificationTokenRepository emailVerificationTokenRepository,
     IEmailSender emailSender,
     IConfiguration configuration
 ) : IAuthService
 {
     // Thời gian sống của link reset password trong email (phút)
     private const int ResetTokenExpiryMinutes = 15;
+
+    // Link verify email sống lâu hơn (người dùng có thể mở mail chậm)
+    private const int VerificationTokenExpiryHours = 24;
 
     private readonly IJwtTokenGenerator _jwtTokenGenerator = jwtTokenGenerator;
     private readonly IUserRepository _userRepository = userRepository;
@@ -31,8 +35,119 @@ public class AuthService(
     private readonly IGoogleAuthProvider _googleAuthProvider = googleAuthProvider;
     private readonly IGitHubAuthProvider _gitHubAuthProvider = gitHubAuthProvider;
     private readonly IPasswordResetTokenRepository _passwordResetTokenRepository = passwordResetTokenRepository;
+    private readonly IEmailVerificationTokenRepository _emailVerificationTokenRepository = emailVerificationTokenRepository;
     private readonly IEmailSender _emailSender = emailSender;
     private readonly IConfiguration _configuration = configuration;
+
+    // FLOW REGISTER (email + password):
+    //   POST /auth/register { fullName, email, password, device }
+    //   -> email đã tồn tại (kể cả account OAuth) -> chặn (400 "Email already exists")
+    //   -> tạo user với PasswordHash = BCrypt -> phát hành token đăng nhập ngay
+    //   (register xong là vào app luôn, không cần gọi login thêm lần nữa)
+    public async Task<AuthResponse> Register(
+        RegisterRequest request,
+        string? ipAddress = null,
+        string? deviceType = null,
+        string? deviceName = null
+    )
+    {
+        var existingUser = await _userRepository.GetByEmailAsync(request.Email);
+
+        if (existingUser != null)
+        {
+            throw new Exception("Email already exists");
+        }
+
+        var newUser = new User
+        {
+            Email = request.Email,
+            FullName = request.FullName,
+
+            // BCrypt tự sinh salt riêng cho từng password -> 2 user cùng password
+            // cho ra 2 hash khác nhau trong DB
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            AvatarPath = null
+        };
+
+        newUser = await _userRepository.AddAsync(newUser);
+
+        // Soft policy: user vẫn được login/dùng app bình thường dù chưa verify -
+        // FE đọc EmailVerifiedAt trong AuthResponse để hiện banner hướng dẫn verify
+        await SendEmailVerificationAsync(newUser);
+
+        return await IssueTokensAsync(
+            newUser,
+            request.Device,
+            ipAddress,
+            deviceType,
+            deviceName
+        );
+    }
+
+    // Email verification flow: tạo token -> lưu hash -> gửi link
+    // {FrontendUrl}/verify-email?token=xxx. Best-effort như password reset:
+    // SMTP lỗi sẽ được controller bắt và trả 400
+    private async Task SendEmailVerificationAsync(User user)
+    {
+        await _emailVerificationTokenRepository.InvalidateUserTokensAsync(user.Id);
+
+        var rawToken = GenerateRawResetToken();
+
+        var emailVerificationToken = new EmailVerificationToken
+        {
+            UserId = user.Id,
+            TokenHash = ComputeTokenHash(rawToken),
+            ExpiresAt = DateTime.UtcNow.AddHours(VerificationTokenExpiryHours)
+        };
+
+        await _emailVerificationTokenRepository.AddAsync(emailVerificationToken);
+        await _emailVerificationTokenRepository.SaveChangesAsync();
+
+        var verificationLink =
+            $"{_configuration["App:FrontendUrl"]}/verify-email?token={rawToken}";
+
+        await _emailSender.SendAsync(
+            user.Email,
+            AuthEmailTemplates.VerifyEmailSubject(),
+            AuthEmailTemplates.VerifyEmailHtml(user.FullName, verificationLink)
+        );
+    }
+
+    public async Task VerifyEmail(VerifyEmailRequest request)
+    {
+        var verificationToken = await _emailVerificationTokenRepository.GetByTokenHashAsync(
+            ComputeTokenHash(request.Token)
+        );
+
+        var isInvalid =
+            verificationToken == null ||
+            verificationToken.UsedAt != null ||
+            verificationToken.ExpiresAt < DateTime.UtcNow;
+
+        if (isInvalid)
+        {
+            throw new Exception("Verification token is invalid or expired");
+        }
+
+        verificationToken!.UsedAt = DateTime.UtcNow;
+        verificationToken.User.EmailVerifiedAt = DateTime.UtcNow;
+
+        await _emailVerificationTokenRepository.SaveChangesAsync();
+    }
+
+    // Resend chống dò account: email không tồn tại hoặc ĐÃ verify đều im lặng
+    // (controller vẫn trả 200 message chung), chỉ user chưa verify mới nhận mail
+    public async Task ResendVerificationEmail(ResendVerificationRequest request)
+    {
+        var user = await _userRepository.GetByEmailAsync(request.Email);
+
+        if (user == null || user.EmailVerifiedAt != null)
+        {
+            return;
+        }
+
+        await SendEmailVerificationAsync(user);
+    }
 
     public async Task<AuthResponse> Login(
     LoginRequest request,
@@ -152,6 +267,7 @@ public class AuthService(
                 Email = user.Email,
                 FullName = user.FullName,
                 AvatarUrl = user.AvatarPath,
+                EmailVerifiedAt = user.EmailVerifiedAt,
                 CreatedAt = user.CreatedAt
             }
         };
@@ -200,6 +316,7 @@ public class AuthService(
                 Email = storedToken.User.Email,
                 FullName = storedToken.User.FullName,
                 AvatarUrl = storedToken.User.AvatarPath,
+                EmailVerifiedAt = storedToken.User.EmailVerifiedAt,
                 CreatedAt = storedToken.User.CreatedAt
             }
         };
@@ -306,6 +423,10 @@ public class AuthService(
             // Provider có thể không trả tên (GitHub name nullable)
             // -> fallback về email cho thỏa unique requirement
             FullName = string.IsNullOrWhiteSpace(fullName) ? email : fullName,
+
+            // Google/GitHub đã verify email trước khi cấp token, coi như
+            // email thuộc chủ quyền user -> không cần gửi mail verify nữa
+            EmailVerifiedAt = DateTime.UtcNow,
 
             // KHÔNG lưu avatarUrl của provider vào AvatarPath: cột này dành cho
             // PATH sau khi upload lên Supabase (GetProfileAsync sẽ tạo signed URL

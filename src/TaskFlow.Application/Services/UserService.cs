@@ -36,6 +36,7 @@ public class UserService : IUserService
             Id = user.Id,
             FullName = user.FullName,
             AvatarUrl = avatarUrl,
+            EmailVerifiedAt = user.EmailVerifiedAt,
             CreatedAt = user.CreatedAt,
             Email = user.Email
         };
@@ -146,6 +147,7 @@ public class UserService : IUserService
             Email = updatedUser.Email,
             FullName = updatedUser.FullName,
             AvatarUrl = avatarUrl,
+            EmailVerifiedAt = updatedUser.EmailVerifiedAt,
             CreatedAt = updatedUser.CreatedAt
         };
     }
@@ -177,6 +179,7 @@ public class UserService : IUserService
             Email = updatedUser.Email,
             FullName = updatedUser.FullName,
             AvatarUrl = null,
+            EmailVerifiedAt = updatedUser.EmailVerifiedAt,
             CreatedAt = updatedUser.CreatedAt
         };
     }
