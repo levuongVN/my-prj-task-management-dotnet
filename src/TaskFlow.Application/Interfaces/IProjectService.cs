@@ -1,3 +1,4 @@
+using TaskFlow.Application.Common;
 using TaskFlow.Application.DTOs.Projects;
 
 namespace TaskFlow.Application.Interfaces;
@@ -6,6 +7,12 @@ public interface IProjectService
 {
     Task<List<ProjectResponse>> GetAllAsync(
         Guid userId
+    );
+
+    Task<PagedResult<ProjectResponse>> GetPagedAsync(
+        Guid userId,
+        int page,
+        int pageSize
     );
 
     Task<ProjectResponse?> GetByIdAsync(

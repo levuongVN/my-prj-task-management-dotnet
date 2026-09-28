@@ -20,6 +20,27 @@ public class MeetingRepository(
             .ToListAsync();
     }
 
+    public async Task<(List<Meeting> Items, int TotalCount)> GetPagedByUserIdAsync(
+        Guid userId,
+        int page,
+        int pageSize
+    )
+    {
+        var query = _context.Meetings
+            .Where(x => x.UserId == userId)
+            .OrderByDescending(x => x.StartAt);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Include(x => x.Project)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public async Task<Meeting?> GetByIdAsync(Guid id, Guid userId)
     {
         return await _context.Meetings

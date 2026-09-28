@@ -21,9 +21,16 @@ public class MeetingsController(
         );
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20
+    )
     {
-        var meetings = await _meetingService.GetAllAsync(CurrentUserId);
+        var meetings = await _meetingService.GetPagedAsync(
+            CurrentUserId,
+            page,
+            pageSize
+        );
         return Ok(meetings);
     }
 

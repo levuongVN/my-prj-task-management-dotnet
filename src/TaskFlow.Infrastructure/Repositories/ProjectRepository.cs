@@ -29,6 +29,27 @@ public class ProjectRepository(ApplicationDbContext context) : IProjectRepositor
             .ToListAsync();
     }
 
+    public async Task<(List<Project> Items, int TotalCount)> GetPagedByUserAsync(
+        Guid userId,
+        int page,
+        int pageSize
+    )
+    {
+        var query = _context.Projects
+            .Where(x => x.UserId == userId && !x.IsDeleted)
+            .OrderByDescending(x => x.CreatedAt);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Include(x => x.Tasks.Where(t => !t.IsDeleted))
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
     public async Task AddAsync(Project project)
     {
         await _context.Projects.AddAsync(project);

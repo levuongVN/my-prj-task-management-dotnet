@@ -25,10 +25,15 @@ public class ProjectsController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20
+    )
     {
-        var projects = await _projectService.GetAllAsync(
-            UserId
+        var projects = await _projectService.GetPagedAsync(
+            UserId,
+            page,
+            pageSize
         );
 
         return Ok(projects);

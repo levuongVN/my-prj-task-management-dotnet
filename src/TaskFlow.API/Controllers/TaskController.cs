@@ -33,14 +33,18 @@ public class TasksController(ITaskService taskService) : ControllerBase{
     }
     [HttpGet("project/{projectId:guid}")]
     public async Task<IActionResult> GetByProject(
-        Guid projectId
+        Guid projectId,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20
     )
     {
         var tasks =
             await _taskService
-                .GetProjectTasksAsync(
+                .GetPagedProjectTasksAsync(
                     projectId,
-                    CurrentUserId
+                    CurrentUserId,
+                    page,
+                    pageSize
                 );
 
         return Ok(tasks);
@@ -90,11 +94,16 @@ public class TasksController(ITaskService taskService) : ControllerBase{
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 20
+    )
     {
         var tasks =
-            await _taskService.GetAllByUserAsync(
-                CurrentUserId
+            await _taskService.GetPagedByUserAsync(
+                CurrentUserId,
+                page,
+                pageSize
             );
 
         return Ok(tasks);

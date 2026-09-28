@@ -1,3 +1,4 @@
+using TaskFlow.Application.Common;
 using TaskFlow.Application.DTOs.Projects;
 using TaskFlow.Application.Interfaces;
 using TaskFlow.Domain.Entities;
@@ -35,6 +36,29 @@ public class ProjectService : IProjectService
         var projects = await _projectRepository.GetAllByUserAsync(userId);
 
         return projects.Select(MapToResponse).ToList();
+    }
+
+    public async Task<PagedResult<ProjectResponse>> GetPagedAsync(
+        Guid userId,
+        int page,
+        int pageSize
+    )
+    {
+        (page, pageSize) = PagedResult<ProjectResponse>.Normalize(page, pageSize);
+
+        var (projects, totalCount) = await _projectRepository.GetPagedByUserAsync(
+            userId,
+            page,
+            pageSize
+        );
+
+        return new PagedResult<ProjectResponse>
+        {
+            Items = projects.Select(MapToResponse).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<ProjectResponse?> GetByIdAsync(

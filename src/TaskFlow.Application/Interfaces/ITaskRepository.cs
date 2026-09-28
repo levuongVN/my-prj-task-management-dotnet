@@ -7,6 +7,17 @@ public interface ITaskRepository
     Task<List<TaskItem>> GetAllByUserIdAsync(
     Guid userId
 );
+    Task<(List<TaskItem> Items, int TotalCount)> GetPagedByUserIdAsync(
+        Guid userId,
+        int page,
+        int pageSize
+    );
+    Task<(List<TaskItem> Items, int TotalCount)> GetPagedByProjectIdAsync(
+        Guid projectId,
+        Guid userId,
+        int page,
+        int pageSize
+    );
     Task<TaskItem?> GetByIdAsync(
         Guid id,
         Guid userId

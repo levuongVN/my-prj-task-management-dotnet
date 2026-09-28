@@ -13,6 +13,12 @@ public interface IProjectRepository
         Guid userId
     );
 
+    Task<(List<Project> Items, int TotalCount)> GetPagedByUserAsync(
+        Guid userId,
+        int page,
+        int pageSize
+    );
+
     Task AddAsync(
         Project project
     );

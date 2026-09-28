@@ -1,3 +1,4 @@
+using TaskFlow.Application.Common;
 using TaskFlow.Application.Features.Tasks.DTOs;
 using TaskFlow.Application.Features.Tasks.Interfaces;
 using TaskFlow.Application.Interfaces;
@@ -199,5 +200,53 @@ public class TaskService(
     {
         var tasks = await _taskRepository.GetAllByUserIdAsync(userId);
         return tasks.Select(Map).ToList();
+    }
+
+    public async Task<PagedResult<TaskResponse>> GetPagedByUserAsync(
+        Guid userId,
+        int page,
+        int pageSize
+    )
+    {
+        (page, pageSize) = PagedResult<TaskResponse>.Normalize(page, pageSize);
+
+        var (tasks, totalCount) = await _taskRepository.GetPagedByUserIdAsync(
+            userId,
+            page,
+            pageSize
+        );
+
+        return new PagedResult<TaskResponse>
+        {
+            Items = tasks.Select(Map).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
+    }
+
+    public async Task<PagedResult<TaskResponse>> GetPagedProjectTasksAsync(
+        Guid projectId,
+        Guid userId,
+        int page,
+        int pageSize
+    )
+    {
+        (page, pageSize) = PagedResult<TaskResponse>.Normalize(page, pageSize);
+
+        var (tasks, totalCount) = await _taskRepository.GetPagedByProjectIdAsync(
+            projectId,
+            userId,
+            page,
+            pageSize
+        );
+
+        return new PagedResult<TaskResponse>
+        {
+            Items = tasks.Select(Map).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
     }
 }

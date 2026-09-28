@@ -1,3 +1,4 @@
+using TaskFlow.Application.Common;
 using TaskFlow.Application.Features.Meetings.DTOs;
 using TaskFlow.Application.Features.Meetings.Interfaces;
 using TaskFlow.Application.Interfaces;
@@ -17,6 +18,29 @@ public class MeetingService(
     {
         var meetings = await _meetingRepository.GetAllByUserIdAsync(userId);
         return meetings.Select(Map).ToList();
+    }
+
+    public async Task<PagedResult<MeetingResponse>> GetPagedAsync(
+        Guid userId,
+        int page,
+        int pageSize
+    )
+    {
+        (page, pageSize) = PagedResult<MeetingResponse>.Normalize(page, pageSize);
+
+        var (meetings, totalCount) = await _meetingRepository.GetPagedByUserIdAsync(
+            userId,
+            page,
+            pageSize
+        );
+
+        return new PagedResult<MeetingResponse>
+        {
+            Items = meetings.Select(Map).ToList(),
+            Page = page,
+            PageSize = pageSize,
+            TotalCount = totalCount
+        };
     }
 
     public async Task<MeetingResponse> GetByIdAsync(Guid id, Guid userId)

@@ -79,4 +79,56 @@ public class TaskRepository(
             .OrderByDescending(x => x.CreatedAt)
             .ToListAsync();
     }
+
+    // Count + Skip/Take: 1 query đếm + 1 query lấy trang hiện tại,
+    // KHÔNG Include ở query Count để nhẹ
+    public async Task<(List<TaskItem> Items, int TotalCount)> GetPagedByUserIdAsync(
+        Guid userId,
+        int page,
+        int pageSize
+    )
+    {
+        var query = _context.Tasks
+            .Where(x => x.UserId == userId && !x.IsDeleted)
+            .OrderByDescending(x => x.CreatedAt);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Include(x => x.Project)
+            .Include(x => x.Subtasks)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
+
+    // Task trong project sắp theo Position (thứ tự kỳ vọng của FE kanban/board),
+    // khác list "all tasks" sắp theo CreatedAt
+    public async Task<(List<TaskItem> Items, int TotalCount)> GetPagedByProjectIdAsync(
+        Guid projectId,
+        Guid userId,
+        int page,
+        int pageSize
+    )
+    {
+        var query = _context.Tasks
+            .Where(x =>
+                x.ProjectId == projectId &&
+                x.UserId == userId &&
+                !x.IsDeleted
+            )
+            .OrderBy(x => x.Position);
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
+            .Include(x => x.Subtasks)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, totalCount);
+    }
 }
