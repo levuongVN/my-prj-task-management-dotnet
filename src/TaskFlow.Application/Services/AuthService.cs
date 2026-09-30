@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using TaskFlow.Application.Common;
 using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Application.Emails;
 using TaskFlow.Application.Features.Auth.DTOs;
@@ -55,7 +56,7 @@ public class AuthService(
 
         if (existingUser != null)
         {
-            throw new Exception("Email already exists");
+            throw new ConflictException("Email already exists");
         }
 
         var newUser = new User
@@ -126,7 +127,7 @@ public class AuthService(
 
         if (isInvalid)
         {
-            throw new Exception("Verification token is invalid or expired");
+            throw new BadRequestException("Verification token is invalid or expired");
         }
 
         verificationToken!.UsedAt = DateTime.UtcNow;
@@ -162,9 +163,8 @@ public class AuthService(
 
         if (user == null)
         {
-            // Lưu ý: message trả thẳng ra 400 - dev-only,
-            // production nên đổi chung 1 message để không lộ user nào tồn tại
-            throw new Exception("User not found");
+            // Message gộp với sai-password: không lộ email có tồn tại hay không
+            throw new UnauthorizedAccessException("Invalid email or password");
         }
 
         // BCrypt hash là one-way: Verify(password nhập vào + hash lưu trong DB)
@@ -176,7 +176,7 @@ public class AuthService(
 
         if (!isValidPassword)
         {
-            throw new Exception("Invalid password");
+            throw new UnauthorizedAccessException("Invalid email or password");
         }
 
         // Phần upsert device + cấp token dùng chung với OAuth login
@@ -280,17 +280,17 @@ public class AuthService(
 
         if (storedToken == null)
         {
-            throw new Exception("Refresh token not found");
+            throw new UnauthorizedAccessException("Refresh token not found");
         }
 
         if (storedToken.ExpiresAt < DateTime.UtcNow || storedToken.IsRevoked)
         {
-            throw new Exception("Refresh token is expired or revoked");
+            throw new UnauthorizedAccessException("Refresh token is expired or revoked");
         }
 
         if (storedToken.UserDevice != null && !storedToken.UserDevice.IsActive)
         {
-            throw new Exception("Device has been logged out");
+            throw new UnauthorizedAccessException("Device has been logged out");
         }
 
         if (storedToken.UserDevice != null)
@@ -527,7 +527,7 @@ public class AuthService(
 
         if (isInvalid)
         {
-            throw new Exception("Reset token is invalid or expired");
+            throw new BadRequestException("Reset token is invalid or expired");
         }
 
         var user = resetToken!.User;

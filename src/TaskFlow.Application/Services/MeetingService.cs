@@ -48,7 +48,7 @@ public class MeetingService(
         var meeting = await _meetingRepository.GetByIdAsync(id, userId);
 
         if (meeting is null)
-            throw new Exception("Meeting not found");
+            throw new NotFoundException("Meeting not found");
 
         return Map(meeting);
     }
@@ -66,7 +66,7 @@ public class MeetingService(
             );
 
             if (project is null)
-                throw new Exception("Project not found");
+                throw new NotFoundException("Project not found");
         }
 
         var meeting = new Meeting
@@ -95,7 +95,7 @@ public class MeetingService(
         var meeting = await _meetingRepository.GetByIdAsync(id, userId);
 
         if (meeting is null)
-            throw new Exception("Meeting not found");
+            throw new NotFoundException("Meeting not found");
 
         if (request.ProjectId.HasValue)
         {
@@ -105,7 +105,7 @@ public class MeetingService(
             );
 
             if (project is null)
-                throw new Exception("Project not found");
+                throw new NotFoundException("Project not found");
         }
 
         meeting.Title = request.Title;
@@ -122,7 +122,7 @@ public class MeetingService(
         var meeting = await _meetingRepository.GetByIdAsync(id, userId);
 
         if (meeting is null)
-            throw new Exception("Meeting not found");
+            throw new NotFoundException("Meeting not found");
 
         _meetingRepository.Delete(meeting);
         await _meetingRepository.SaveChangesAsync();

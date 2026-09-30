@@ -127,7 +127,7 @@ public class ProjectService : IProjectService
 
         if (project is null)
         {
-            throw new Exception("Project not found");
+            throw new NotFoundException("Project not found");
         }
 
         project.Name = request.Name;
@@ -161,7 +161,7 @@ public class ProjectService : IProjectService
 
         if (project is null)
         {
-            throw new Exception("Project not found");
+            throw new NotFoundException("Project not found");
         }
 
         project.IsDeleted = true;

@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskFlow.API.Extensions;
 using TaskFlow.Application.DTOs.Projects;
 using TaskFlow.Application.Interfaces;
 
@@ -12,11 +12,7 @@ namespace TaskFlow.API.Controllers;
 public class ProjectsController : Controller
 {
     private readonly IProjectService _projectService;
-    protected Guid UserId => Guid.Parse(
-            User.FindFirstValue(
-                ClaimTypes.NameIdentifier
-            )!
-        );
+    protected Guid UserId => User.GetUserId();
     public ProjectsController(
         IProjectService projectService
     )

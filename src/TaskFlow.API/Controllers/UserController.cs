@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskFlow.API.Extensions;
 using TaskFlow.Application.Features.Auth.DTOs;
 using TaskFlow.Application.Interfaces;
 
@@ -12,10 +13,7 @@ public class UserController : ControllerBase
     private readonly IUserService _service;
     private readonly IDeviceService _deviceService;
 
-    private Guid CurrentUserId =>
-        Guid.Parse(
-            User.FindFirstValue(ClaimTypes.NameIdentifier)!
-        );
+    private Guid CurrentUserId => User.GetUserId();
 
     private Guid CurrentDeviceId =>
         Guid.TryParse(

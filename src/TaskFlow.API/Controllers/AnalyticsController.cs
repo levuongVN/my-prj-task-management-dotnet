@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskFlow.API.Extensions;
 using TaskFlow.Application.Features.Analytics.DTOs;
 using TaskFlow.Application.Features.Analytics.Interfaces;
 
@@ -20,12 +20,7 @@ public class AnalyticsController : ControllerBase
         _service = service;
     }
 
-    private Guid UserId =>
-        Guid.Parse(
-            User.FindFirstValue(
-                ClaimTypes.NameIdentifier
-            )!
-        );
+    private Guid UserId => User.GetUserId();
 
     [HttpGet]
     public async Task<IActionResult> Get(

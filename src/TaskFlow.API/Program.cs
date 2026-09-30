@@ -40,7 +40,7 @@ if (app.Environment.IsDevelopment())
 // MIDDLEWARE
 app.UseDetection();
 app.UseCors("AllowFrontend");
-app.UseMiddleware<ExceptionHandingMiddleware>();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 //auth
 //logg
 app.UseHttpsRedirection();

@@ -69,7 +69,7 @@ public class TaskService(
 
             if (project == null)
             {
-                throw new Exception(
+                throw new NotFoundException(
                     "Project not found"
                 );
             }
@@ -115,7 +115,7 @@ public class TaskService(
 
         if (task == null)
         {
-            throw new Exception(
+            throw new NotFoundException(
                 "Task not found"
             );
         }
@@ -227,7 +227,7 @@ public class TaskService(
 
         if (task == null)
         {
-            throw new Exception(
+            throw new NotFoundException(
                 "Task not found"
             );
         }

@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskFlow.API.Extensions;
 using TaskFlow.Application.Features.Notifications.DTOs;
 using TaskFlow.Application.Interfaces;
 
@@ -20,12 +20,7 @@ public class NotificationController : ControllerBase
         _notificationService = notificationService;
     }
 
-    private Guid UserId =>
-        Guid.Parse(
-            User.FindFirstValue(
-                ClaimTypes.NameIdentifier
-            )!
-        );
+    private Guid UserId => User.GetUserId();
 
     [HttpGet]
     public async Task<IActionResult> Get(

@@ -1,3 +1,4 @@
+using TaskFlow.Application.Common;
 using TaskFlow.Application.Common.Interfaces;
 using TaskFlow.Application.Features.Auth.DTOs;
 using TaskFlow.Domain.Entities;
@@ -107,7 +108,7 @@ public class UserService : IUserService
         var result = await _userRepository.UpdateAsync(userCurrent);
         if (result == null)
         {
-            throw new Exception("Have an error");
+            throw new NotFoundException("Have an error");
         }
         return true;
     }

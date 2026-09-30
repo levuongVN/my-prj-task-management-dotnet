@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskFlow.API.Extensions;
 using TaskFlow.Application.Features.Tasks.DTOs;
 using TaskFlow.Application.Features.Tasks.Interfaces;
 
@@ -12,12 +12,7 @@ namespace TaskFlow.Api.Controllers;
 public class TasksController(ITaskService taskService) : ControllerBase{
     private readonly ITaskService _taskService = taskService;
 
-    private Guid CurrentUserId =>
-        Guid.Parse(
-            User.FindFirstValue(
-                ClaimTypes.NameIdentifier
-            )!
-        );
+    private Guid CurrentUserId => User.GetUserId();
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(
         Guid id

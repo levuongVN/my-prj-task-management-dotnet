@@ -1,6 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TaskFlow.API.Extensions;
 using TaskFlow.Application.DTOs.Labels;
 using TaskFlow.Application.Interfaces;
 
@@ -18,12 +18,7 @@ public class LabelController : ControllerBase
         _labelService = labelService;
     }
 
-    private Guid CurrentUserId =>
-        Guid.Parse(
-            User.FindFirstValue(
-                ClaimTypes.NameIdentifier
-            )!
-        );
+    private Guid CurrentUserId => User.GetUserId();
 
     [HttpGet]
     public async Task<IActionResult> GetAll()
