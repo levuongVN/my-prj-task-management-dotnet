@@ -16,6 +16,8 @@ using Microsoft.Extensions.Options;
 using Hangfire;
 using Hangfire.PostgreSql;
 using TaskFlow.Infrastructure.Jobs;
+using TaskFlow.Infrastructure.Storage;
+using TaskFlow.Infrastructure.Email;
 using Microsoft.Extensions.AI;
 using Microsoft.Extensions.Logging;
 using TaskFlow.Application.Common;

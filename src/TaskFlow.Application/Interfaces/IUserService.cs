@@ -1,4 +1,7 @@
+using TaskFlow.Application.DTOs;
 using TaskFlow.Application.Features.Auth.DTOs;
+
+namespace TaskFlow.Application.Interfaces;
 
 public interface IUserService
 {

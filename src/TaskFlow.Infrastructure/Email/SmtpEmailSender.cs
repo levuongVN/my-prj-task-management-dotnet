@@ -4,6 +4,8 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using TaskFlow.Application.Interfaces;
 
+namespace TaskFlow.Infrastructure.Email;
+
 public class SmtpEmailSender : IEmailSender
 {
     private readonly SmtpOptions _options;

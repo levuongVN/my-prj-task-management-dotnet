@@ -25,6 +25,7 @@ public class GitHubAuthProvider : IGitHubAuthProvider
     private readonly HttpClient _httpClient;
     private readonly string _clientId;
     private readonly string _clientSecret;
+    private readonly string _redirectUri;
 
     public GitHubAuthProvider(HttpClient httpClient, IConfiguration configuration)
     {
@@ -33,6 +34,8 @@ public class GitHubAuthProvider : IGitHubAuthProvider
         _httpClient = httpClient;
         _clientId = configuration["Authentication:GitHub:ClientId"] ?? string.Empty;
         _clientSecret = configuration["Authentication:GitHub:ClientSecret"] ?? string.Empty;
+        _redirectUri = configuration["Authentication:GitHub:RedirectUri"]
+            ?? "http://localhost:5173/auth/github/callback";
     }
 
     // Chain chính: code -> access token -> user info
@@ -58,7 +61,7 @@ public class GitHubAuthProvider : IGitHubAuthProvider
 
                 // GitHub kiểm tra redirect_uri bước exchange phải KHỚP callback
                 // đã khai khi tạo OAuth App - chống attacker chuyển hướng code về chỗ khác
-                redirect_uri = "http://localhost:5173/auth/github/callback"
+                redirect_uri = _redirectUri
             }
         );
 

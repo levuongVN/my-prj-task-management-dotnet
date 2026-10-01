@@ -1,7 +1,9 @@
 using NSubstitute;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.DTOs;
 using TaskFlow.Application.Features.Auth.DTOs;
 using TaskFlow.Application.Interfaces;
+using TaskFlow.Application.Services;
 using TaskFlow.Domain.Entities;
 
 namespace TaskFlow.Tests.Users;

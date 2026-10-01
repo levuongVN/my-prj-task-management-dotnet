@@ -1,3 +1,5 @@
+namespace TaskFlow.Application.DTOs;
+
 public class FileUploadDto
 {
     public Stream Stream { get; init; } = Stream.Null;

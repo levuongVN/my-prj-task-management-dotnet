@@ -1,3 +1,7 @@
+using TaskFlow.Application.DTOs;
+
+namespace TaskFlow.Application.Interfaces;
+
 public interface IFileStorageService
 {
     Task<string> UploadAvatarAsync(

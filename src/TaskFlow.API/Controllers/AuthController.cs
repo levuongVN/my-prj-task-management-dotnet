@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Wangkanai.Detection.Services;
 using TaskFlow.Application.Features.Auth.DTOs;
-using TaskFlow.Application.Features.Auth.Services;
+using TaskFlow.Application.Features.Auth.Interfaces;
 
 namespace TaskFlow.API.Controllers;
 
@@ -12,10 +12,10 @@ namespace TaskFlow.API.Controllers;
 public class AuthController : ControllerBase
 {
 
-    private readonly AuthService _authService;
+    private readonly IAuthService _authService;
     private readonly IDetectionService _detectionService;
 
-    public AuthController(AuthService authService, IDetectionService detectionService)
+    public AuthController(IAuthService authService, IDetectionService detectionService)
     {
         _authService = authService;
         _detectionService = detectionService;

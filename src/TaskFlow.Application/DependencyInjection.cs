@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using TaskFlow.Application.Features.Auth.Interfaces;
 using TaskFlow.Application.Features.Auth.Services;
 using TaskFlow.Application.Features.Tasks.Interfaces;
 using TaskFlow.Application.Features.Tasks.Services;
@@ -21,7 +22,7 @@ public static class DependencyInjection
         this IServiceCollection services
     )
     {
-        services.AddScoped<AuthService>();
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<ITaskService, TaskService>();
         services.AddScoped<IProjectService, ProjectService>();
         services.AddScoped<IUserService, UserService>();

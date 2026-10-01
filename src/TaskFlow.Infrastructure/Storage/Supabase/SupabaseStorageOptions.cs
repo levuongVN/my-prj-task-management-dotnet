@@ -1,3 +1,5 @@
+namespace TaskFlow.Infrastructure.Storage;
+
 public class SupabaseStorageOptions
 {
     public string Endpoint { get; set; } = string.Empty;

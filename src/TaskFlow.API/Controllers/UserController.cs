@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskFlow.API.Extensions;
+using TaskFlow.Application.DTOs;
 using TaskFlow.Application.Features.Auth.DTOs;
 using TaskFlow.Application.Interfaces;
 

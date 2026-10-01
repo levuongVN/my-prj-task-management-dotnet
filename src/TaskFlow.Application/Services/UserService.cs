@@ -1,7 +1,11 @@
 using TaskFlow.Application.Common;
 using TaskFlow.Application.Common.Interfaces;
+using TaskFlow.Application.DTOs;
 using TaskFlow.Application.Features.Auth.DTOs;
+using TaskFlow.Application.Interfaces;
 using TaskFlow.Domain.Entities;
+
+namespace TaskFlow.Application.Services;
 
 public class UserService : IUserService
 {

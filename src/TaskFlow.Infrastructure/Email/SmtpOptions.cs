@@ -1,3 +1,5 @@
+namespace TaskFlow.Infrastructure.Email;
+
 public class SmtpOptions
 {
     public string Host { get; set; } = string.Empty;

@@ -1,6 +1,10 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Microsoft.Extensions.Options;
+using TaskFlow.Application.DTOs;
+using TaskFlow.Application.Interfaces;
+
+namespace TaskFlow.Infrastructure.Storage;
 
 public class SupabaseStorageService
     : IFileStorageService
