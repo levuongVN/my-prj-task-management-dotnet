@@ -16,6 +16,10 @@ using Microsoft.Extensions.Options;
 using Hangfire;
 using Hangfire.PostgreSql;
 using TaskFlow.Infrastructure.Jobs;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Logging;
+using TaskFlow.Application.Common;
+using TaskFlow.Infrastructure.AI;
 
 namespace TaskFlow.Infrastructure;
 
@@ -130,6 +134,65 @@ public static class DependencyInjection
         // OAuth providers: Google validate ID token, GitHub dùng typed HttpClient
         services.AddHttpClient<IGitHubAuthProvider, GitHubAuthProvider>();
         services.AddScoped<IGoogleAuthProvider, GoogleAuthProvider>();
+
+        // ===== AI (Gemini free tier) =====
+        // services.Configure<AiOptions>(...) = bind section "Ai" trong appsettings.json
+        // vào class AiOptions (Options pattern). AiService inject IOptions<AiOptions>
+        // để đọc ApiKey/Model/DailyUserLimit/RetentionDays.
+        services.Configure<AiOptions>(configuration.GetSection("Ai"));
+
+        // Đăng ký IChatClient - đây là "cầu nối" duy nhất giữa Application và SDK Gemini:
+        //
+        //   Application  ->  chỉ biết IChatClient (Microsoft.Extensions.AI.Abstractions)
+        //   Infrastructure -> biết Google.GenAI (SDK chính thức của Google)
+        //
+        // Google.GenAI.Client là client gọi Gemini; extension AsIChatClient(model)
+        // (trong namespace Microsoft.Extensions.AI) bọc nó lại thành IChatClient.
+        // Ta bọc thêm 1 lớp ResilientChatClient để tự chuyển sang model dự phòng khi
+        // model chính gặp 503/429 (free tier rất hay bị). Application vẫn chỉ thấy IChatClient.
+        //
+        // AddSingleton vì client này thread-safe và dùng chung được cho mọi request.
+        // Factory chạy lazy (chỉ khi có request đầu tiên resolve) nên app vẫn khởi
+        // động bình thường dù chưa cấu hình API key.
+        services.AddSingleton<IChatClient>(serviceProvider =>
+        {
+            var apiKey = configuration["Ai:ApiKey"];
+
+            if (string.IsNullOrEmpty(apiKey))
+                throw new InvalidOperationException(
+                    "Ai:ApiKey is not configured. Get a free key at https://aistudio.google.com/apikey");
+
+            // Thứ tự thử: model chính -> các model dự phòng (bỏ trùng, giữ thứ tự).
+            var modelNames = new List<string>
+            {
+                configuration["Ai:Model"] ?? "gemini-flash-latest"
+            };
+
+            foreach (var fallback in configuration.GetSection("Ai:FallbackModels").GetChildren())
+            {
+                var name = fallback.Value;
+
+                if (!string.IsNullOrWhiteSpace(name) &&
+                    !modelNames.Contains(name, StringComparer.OrdinalIgnoreCase))
+                {
+                    modelNames.Add(name);
+                }
+            }
+
+            // 1 Client Gemini dùng chung; AsIChatClient(model) tạo wrapper cho từng model.
+            var googleClient = new Google.GenAI.Client(apiKey: apiKey);
+            var models = modelNames
+                .Select(model => (Model: model, Client: googleClient.AsIChatClient(model)))
+                .ToList();
+
+            var logger = serviceProvider.GetRequiredService<ILogger<ResilientChatClient>>();
+            return new ResilientChatClient(models, logger);
+        });
+
+        services.AddScoped<IAiChatSessionRepository, AiChatSessionRepository>();
+        services.AddScoped<IAiChatMessageRepository, AiChatMessageRepository>();
+        services.AddScoped<AiChatRetentionJob>();
+
         return services;
     }
 }

@@ -10,6 +10,8 @@ using TaskFlow.Application.Features.Analytics.Interfaces;
 using TaskFlow.Application.Features.Analytics.Services;
 using TaskFlow.Application.Features.Comments.Interfaces;
 using TaskFlow.Application.Features.Comments.Services;
+using TaskFlow.Application.Features.AI.Interfaces;
+using TaskFlow.Application.Features.AI.Services;
 
 namespace TaskFlow.Application;
 
@@ -30,6 +32,7 @@ public static class DependencyInjection
         services.AddScoped<ICommentService, CommentService>();
         services.AddScoped<ISubtaskService, SubtaskService>();
         services.AddScoped<ILabelService, LabelService>();
+        services.AddScoped<IAiService, AiService>();
         return services;
     }
 }

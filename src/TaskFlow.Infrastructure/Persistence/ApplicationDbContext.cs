@@ -25,6 +25,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<EmailVerificationToken> EmailVerificationTokens => Set<EmailVerificationToken>();
     public DbSet<Label> Labels => Set<Label>();
+    public DbSet<AiChatSession> AiChatSessions => Set<AiChatSession>();
+    public DbSet<AiChatMessage> AiChatMessages => Set<AiChatMessage>();
 
     public override int SaveChanges()
     {
@@ -264,6 +266,44 @@ public class ApplicationDbContext : DbContext
                 .WithMany(x => x.Projects)
                 .UsingEntity("ProjectLabels",
                     j => j.HasIndex("LabelsId").HasDatabaseName("IX_ProjectLabels_LabelsId"));
+        });
+
+        modelBuilder.Entity<AiChatSession>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            entity.Property(x => x.Title)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            // Index hỗ trợ query "list session của user" + sắp theo lần cập nhật gần nhất
+            // (mỗi khi có tin nhắn mới, service gọi TouchAsync để bump UpdatedAt)
+            entity.HasIndex(x => new { x.UserId, x.UpdatedAt });
+
+            entity.HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<AiChatMessage>(entity =>
+        {
+            entity.HasKey(x => x.Id);
+
+            // Nội dung chat có thể dài (prompt lẫn câu trả lời của AI) nên không
+            // giới hạn max length; service đã chặn input <= 4000 ký tự
+            entity.Property(x => x.Content)
+                .IsRequired();
+
+            // Index hỗ trợ load lịch sử hội thoại theo session + sắp theo thời gian
+            entity.HasIndex(x => new { x.SessionId, x.CreatedAt });
+
+            // Xoá session là xoá luôn toàn bộ message (DB cascade) - cũng chính là
+            // cơ chế dọn dẹp của AiChatRetentionJob khi session quá RetentionDays
+            entity.HasOne(x => x.Session)
+                .WithMany(x => x.Messages)
+                .HasForeignKey(x => x.SessionId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

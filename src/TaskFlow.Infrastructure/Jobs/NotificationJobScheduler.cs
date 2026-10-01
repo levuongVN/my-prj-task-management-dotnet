@@ -35,6 +35,12 @@ public class NotificationJobScheduler : IHostedService
             job => job.SendMeetingReminderNotificationsAsync(2),
             "*/10 * * * *");
 
+        // Dọn session chat AI cũ mỗi ngày lúc 03:00 (0 3 * * * = phút 0, giờ 3, mỗi ngày)
+        RecurringJob.AddOrUpdate<AiChatRetentionJob>(
+            "cleanup-ai-chat-sessions",
+            job => job.CleanupOldSessionsAsync(),
+            "0 3 * * *");
+
         return Task.CompletedTask;
     }
 
